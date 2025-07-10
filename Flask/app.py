@@ -14,18 +14,18 @@ def redirect_example():
 @app.route('/about')
 def about():
     return "This is the about page."
-@app.route('/contact')
+@app.route('/contact/')
 def contact():
     return "This is the contact page."
-@app.route('/<name>')
-def user(name):
-    return f"Hello, {escape(name)}!"
-@app.route('/<int:id>')
-def user_id(id):
-    return f"User ID: {escape(id)}"
-@app.route('/<path:subpath>')
+# @app.route('/<name>')
+# def user(name):
+#     return f"Hello, {escape(name)}!"
+# @app.route('/<int:id>')
+# def user_id(id):
+#     return f"User ID: {escape(id)}"
+@app.route('/new/<path:subpath>')
 def subpath(subpath):
-    return f"Subpath: {(subpath)}"
+    return f"Subpath: {escape(subpath)}"
 
 
 if __name__ == "__main__":
