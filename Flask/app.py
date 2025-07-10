@@ -1,47 +1,29 @@
-from flask import Flask
+from flask import Flask, redirect, url_for
 # wsgi application
 app = Flask(__name__)
 
 # from markupsafe import escape
+# a funn app
+@app.route('/')
+def home():
+    return "Welcome to the Flask App!"
+@app.route('/redirect')
+def redirect_example():
+    return redirect(url_for('home'))
+@app.route('/about')
+def about():
+    return "This is the about page."
+@app.route('/contact')
+def contact():
+    return "This is the contact page."
+@app.route('/<name>')
+def user(name):
+    return f"Hello, {name}!"
+@app.route('/<int:id>')
+def user_id(id):
+    return f"User ID: {id}"
 
-@app.route("/")
-def hello():
-    return f"Hello!"
 
-
-@app.route("/check/<num>")
-def check(num):
-    try:
-        num = int(num)
-    except ValueError:
-        return "Please provide a valid integer."
-    
-    if num < 0 and num % 2 == 0:
-        return f"{num} is negative"
-    elif num > 0 and num % 2 == 0:
-        return f"{num} is positive"
-    else:
-        return "The number is zero"
-    
-
-@app.route("/recheck/<string:name>")
-def name_check(name):
-    if name.isalpha():
-        return f"{name} is a valid name"
-    else:
-        return f"{name} is not a valid name, it should contain only letters"
-@app.route("/new/<int:num>")
-def num_check(num):
-    bool a = False
-    if num % 2 == 0:
-        bool = True
-    else:
-        bool = False
-        
-    if(bool):
-        return(redirect(url_for(check, num)))
-    else:
-        return(redirect(url_for(name_check, name=str(num))))
 if __name__ == "__main__":
     app.run(debug=True)
     
