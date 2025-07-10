@@ -1,5 +1,6 @@
-from flask import Flask, redirect, url_for
-from markupsafe import escape
+# integrating html with flask and jinja 2 techniques
+# http verbs like get and post
+from flask import Flask, redirect, url_for, render_template, request
 # wsgi application
 app = Flask(__name__)
 
@@ -19,13 +20,10 @@ def contact():
     return "This is the contact page."
 @app.route('/<name>')
 def user(name):
-    return f"Hello, {escape(name)}!"
+    return f"Hello, {name}!"
 @app.route('/<int:id>')
 def user_id(id):
-    return f"User ID: {escape(id)}"
-@app.route('/<path:subpath>')
-def subpath(subpath):
-    return f"Subpath: {(subpath)}"
+    return f"User ID: {id}"
 
 
 if __name__ == "__main__":
