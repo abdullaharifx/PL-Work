@@ -69,8 +69,25 @@ def submit():
         tenth = (float(request.form['tenth']))
         twelfth = (float(request.form['twelfth']))
         grad = (float(request.form['grad']))  
-        score = (tenth + twelfth + grad) / 3
-        return render_template('result.html', score = score, name=name, roll=roll, tenth=tenth, twelfth=twelfth, grad=grad)
+
+        name2 = escape(request.form['name2'])
+        roll2 = escape(request.form['roll2'])
+        tenth2 = (float(request.form['tenth2']))
+        twelfth2 = (float(request.form['twelfth2']))
+        grad2 = (float(request.form['grad2']))
+
+        score1 = 0.15 * tenth + 0.15 * twelfth + 0.2 * grad
+        score2 = 0.15 * tenth2 + 0.15 * twelfth2 + 0.2 * grad2
+
+        book = {
+            'name': [name, name2],
+            'roll': [roll, roll2],
+            'tenth': [tenth, tenth2],
+            'twelfth': [twelfth, twelfth2],
+            'grad': [grad, grad2],
+            'score': [score1, score2]
+        }
+        return render_template('result.html', book=book)
     return render_template('index.html')
 
 if __name__ == "__main__":

@@ -1,23 +1,29 @@
-<!--display the message in a beautiful marquee running from up to down-->
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Result</title>
-        <style>
-            marquee {
-                font-size: 24px;
-                color: blue;
-                font-weight: bold;
-            }
-        </style>
-    </head>
-    <body>
-        <h2>Result</h2>
-        {% if score > 50 %}
-            {% set score = 0 %}
-        {% else %}
-            {% set score = 100 %}
-        {% endif %}
-        <marquee behavior="scroll" direction="left" scrollamount="10">Your score is {{ score }}</marquee>
-    </body>
+<head>
+    <title>Result</title>
+    <style>
+        marquee {
+            font-size: 24px;
+            color: blue;
+            font-weight: bold;
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Result</h2>
+
+    {% set total_score = book['score'][0] + book['score'][1] %}
+
+    {% if total_score > 50 %}
+        <marquee behavior="scroll" direction="down" scrollamount="5">
+            🎉 Congratulations! Total Score: {{ total_score }}
+        </marquee>
+    {% else %}
+        <marquee behavior="scroll" direction="up" scrollamount="10">
+            ⚠️ Your score is low: {{ total_score }}
+        </marquee>
+    {% endif %}
+</body>
 </html>
