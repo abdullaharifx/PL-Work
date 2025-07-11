@@ -24,7 +24,12 @@ def user(name):
 @app.route('/<int:id>')
 def user_id(id):
     return f"User ID: {id}"
-
+@app.route('/form', methods=['POST', 'GET'])
+def form():
+    if request.method == 'POST':
+        name = request.form['name']
+        return f"Submitted name: {name}"
+    return render_template('index.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
