@@ -13,6 +13,11 @@
     </head>
     <body>
         <h2>Result</h2>
-        <marquee behavior="scroll" direction="left" scrollamount="10">{{ message }}</marquee>
+        {% if score > 50 %}
+            {% set score = 0 %}
+        {% else %}
+            {% set score = 100 %}
+        {% endif %}
+        <marquee behavior="scroll" direction="left" scrollamount="10">Your score is {{ score }}</marquee>
     </body>
 </html>
