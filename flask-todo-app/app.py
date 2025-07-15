@@ -198,7 +198,7 @@ def edit_todo(todo_id):
         title = request.form['title']
         description = request.form['description']
         
-        if not title or not description:
+        if not (title and description):
             flash('Both title and description are required!', 'error')
             return render_template('edit_todo.html', todo=todo)
         
