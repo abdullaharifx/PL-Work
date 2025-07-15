@@ -1,14 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Welcome - Flask TODO App{% endblock %}
+{% block title %}Home - Flask TODO App{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="jumbotron bg-light p-5 rounded">
             <h1 class="display-4">
-                <i class="fas fa-tasks text-primary"></i> 
-                Welcome to TODO App
+                <i class="fas fa-tasks text-custom-primary"></i> Welcome to TODO App
             </h1>
             <p class="lead">
                 A simple and efficient way to manage your daily tasks. 
@@ -28,7 +27,7 @@
         
         <div class="row mt-5">
             <div class="col-md-4">
-                <div class="card h-100">
+                <div class="card h-100 feature-card">
                     <div class="card-body text-center">
                         <i class="fas fa-plus-circle fa-3x text-success mb-3"></i>
                         <h5 class="card-title">Create Tasks</h5>
@@ -37,7 +36,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card h-100">
+                <div class="card h-100 feature-card">
                     <div class="card-body text-center">
                         <i class="fas fa-search fa-3x text-info mb-3"></i>
                         <h5 class="card-title">Search & Filter</h5>
@@ -46,7 +45,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card h-100">
+                <div class="card h-100 feature-card">
                     <div class="card-body text-center">
                         <i class="fas fa-shield-alt fa-3x text-warning mb-3"></i>
                         <h5 class="card-title">Secure</h5>
