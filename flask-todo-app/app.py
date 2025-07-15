@@ -229,6 +229,55 @@ def delete_todo(todo_id):
     flash('Todo deleted successfully!', 'success')
     return redirect(url_for('dashboard'))
 
+@app.route('/delete/<int:user_id>')
+@login_required
+def delete_user(user_id):
+    """Delete a user"""
+    user = User.query.get_or_404(user_id)
+    
+    # Ensure user owns this account
+    if user.id != session['user_id']:
+        flash('Unauthorized access!', 'error')
+        return redirect(url_for('dashboard'))
+    
+    db.session.delete(user)
+    db.session.commit()
+    
+    flash('Sad to see you go.', 'success')
+    return redirect(url_for('dashboard'))
+@app.route('/delete_account', methods=['GET', 'POST'])
+@login_required
+def delete_account():
+    """Delete user account and all associated data"""
+    if request.method == 'POST':
+        # Get password confirmation for security
+        password = request.form['password']
+        confirmation = request.form['confirmation']
+        
+        # Get current user
+        user = User.query.get(session['user_id'])
+        
+        # Verify password
+        if not user.check_password(password):
+            flash('Incorrect password!', 'error')
+            return render_template('delete_account.html')
+        
+        # Verify confirmation text
+        if confirmation.lower() != 'delete my account':
+            flash('Please type "delete my account" to confirm!', 'error')
+            return render_template('delete_account.html')
+        
+        # Delete user (todos will be automatically deleted due to cascade)
+        db.session.delete(user)
+        db.session.commit()
+        
+        # Clear session
+        session.clear()
+        
+        flash('Your account has been permanently deleted.', 'info')
+        return redirect(url_for('index'))
+    
+    return render_template('delete_account.html')
 @app.route('/profile')
 @login_required
 def profile():
