@@ -35,6 +35,6 @@ def delete_account_view():
         session.clear()
 
         flash('Your account has been permanently deleted.', 'info')
-        return redirect(url_for('index.index_view'))
+        return redirect(url_for('index.home'))
 
-    return render_template('delete_account.html')
+    return render_template('user/delete.html')

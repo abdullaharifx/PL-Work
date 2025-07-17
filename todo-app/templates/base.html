@@ -1,26 +1,26 @@
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>{% block title %}TODO App{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+
 </head>
 <body>
     <header>
         <h1>My TODO App</h1>
         <nav>
-            <a href="/">Home</a>
-            <a href="/dashboard">Dashboard</a>
+            <a href="{{ url_for('index.home') }}">Home</a>
+            <a href="{{ url_for('dashboard.dashboard_view') }}">Dashboard</a>
         </nav>
     </header>
-    <main>
-        {% include 'layout/navbar.html' %}
-        <div class="container mt-3">
-            {% include 'layout/flash_msgs.html' %}
-        </div>
 
-    </main>
-    {% block content %}{% endblock %}
+    {% include 'layout/navbar.html' %}
+    
+    <div class="container mt-3">
+        {% include 'layout/flash_msgs.html' %}
+
+        {% block content %}
+        {% endblock %}
+    </div>
 </body>
-
 </html>

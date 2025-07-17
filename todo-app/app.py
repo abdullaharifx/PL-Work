@@ -7,7 +7,10 @@ import os
 db = SQLAlchemy()
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__,
+            template_folder='templates',
+            static_folder='static',
+            instance_relative_config=True)
 
     # --- [ 1. Setup paths ] ---
     basedir = os.path.abspath(os.path.dirname(__file__))
@@ -26,7 +29,7 @@ def create_app():
     db.init_app(app)
     
 
-    from models import user, todo  # ensure models are imported
+    # from models import user, todo  # ensure models are imported
 
     with app.app_context():
         db.create_all()
