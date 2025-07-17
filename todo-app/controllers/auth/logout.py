@@ -1,11 +1,9 @@
-from flask import Blueprint, redirect, url_for, flash, session
+from flask import Blueprint, redirect, url_for, session, flash
 
-bp = Blueprint('logout', __name__, url_prefix='')
+bp = Blueprint('logout', __name__, url_prefix='/logout')
 
-
-@bp.route('/logout')
-def logout():
-    """User logout"""
+@bp.route('/')
+def logout_view():
     session.clear()
     flash('You have been logged out.', 'info')
-    return redirect(url_for('index'))
+    return redirect(url_for('index.home'))

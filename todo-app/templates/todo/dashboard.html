@@ -1,1 +1,38 @@
+{% extends "base.html" %}
 
+{% block title %}Dashboard - Flask TODO App{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-tachometer-alt"></i> Your Todos</h2>
+    <a href="{{ url_for('create.create_view') }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> New Todo
+    </a>
+</div>
+
+<!-- Search Form -->
+{% include 'todo/search.html' %}    
+
+<!-- Todos List -->
+{% if todos.items %}
+
+    {% set todos = todos %}
+    {% include 'todo/list.html' %} 
+    <!-- Pagination -->
+     {% set pagination = todos %}
+     {% include 'todo/pagination.html' %}
+
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-tasks fa-5x text-muted mb-3"></i>
+        <h4 class="text-muted">No todos found</h4>
+        {% if search %}
+            <p>No todos match your search criteria.</p>
+            <a href="{{ url_for('dashboard.dashboard_view') }}" class="btn btn-primary">View All Todos</a>
+        {% else %}
+            <p>You haven't created any todos yet.</p>
+            <a href="{{ url_for('create.create_view') }}" class="btn btn-success">Create Your First Todo</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}

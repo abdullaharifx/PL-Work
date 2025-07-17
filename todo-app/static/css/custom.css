@@ -1,1 +1,325 @@
+:root {
+    --dark-teal: #0F3D3E;
+    --medium-teal: #1E6F5C;
+    --cream: #E8D8C4;
+    --golden-brown: #C69749;
+    --off-white: #EEEDEB;
+}
 
+/* Body and general styling */
+body {
+    background-color: var(--off-white);
+    color: var(--dark-teal);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Navigation Bar */
+.navbar {
+    background-color: var(--dark-teal) !important;
+    border-bottom: 3px solid var(--golden-brown);
+}
+
+.navbar-brand {
+    color: var(--cream) !important;
+    font-weight: bold;
+}
+
+.navbar-brand:hover {
+    color: var(--off-white) !important;
+}
+
+.nav-link {
+    color: var(--cream) !important;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--golden-brown) !important;
+}
+
+/* Cards */
+.card {
+    background-color: white;
+    border: 2px solid var(--medium-teal);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(15, 61, 62, 0.1);
+}
+
+.card-header {
+    background-color: var(--medium-teal);
+    color: white;
+    border-bottom: 2px solid var(--golden-brown);
+}
+
+.card-header h3 {
+    margin: 0;
+    color: white;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--medium-teal);
+    border-color: var(--medium-teal);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--dark-teal);
+    border-color: var(--dark-teal);
+}
+
+.btn-outline-primary {
+    color: var(--medium-teal);
+    border-color: var(--medium-teal);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--medium-teal);
+    border-color: var(--medium-teal);
+    color: white;
+}
+
+.btn-success {
+    background-color: var(--golden-brown);
+    border-color: var(--golden-brown);
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #b8863f;
+    border-color: #b8863f;
+}
+
+.btn-warning {
+    background-color: var(--cream);
+    border-color: var(--cream);
+    color: var(--dark-teal);
+}
+
+.btn-warning:hover {
+    background-color: #dfc9a6;
+    border-color: #dfc9a6;
+    color: var(--dark-teal);
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+/* Form Controls */
+.form-control {
+    border: 2px solid var(--cream);
+    border-radius: 5px;
+    background-color: var(--off-white);
+}
+
+.form-control:focus {
+    border-color: var(--medium-teal);
+    box-shadow: 0 0 0 0.2rem rgba(30, 111, 92, 0.25);
+    background-color: white;
+}
+
+.form-label {
+    color: var(--dark-teal);
+    font-weight: 600;
+}
+
+/* Alerts */
+.alert-success {
+    background-color: rgba(198, 151, 73, 0.1);
+    border-color: var(--golden-brown);
+    color: var(--dark-teal);
+}
+
+.alert-error,
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-color: #dc3545;
+    color: #721c24;
+}
+
+.alert-warning {
+    background-color: rgba(232, 216, 196, 0.5);
+    border-color: var(--cream);
+    color: var(--dark-teal);
+}
+
+.alert-info {
+    background-color: rgba(30, 111, 92, 0.1);
+    border-color: var(--medium-teal);
+    color: var(--dark-teal);
+}
+
+/* Jumbotron/Hero Section */
+.jumbotron {
+    background: linear-gradient(135deg, var(--off-white), rgba(232, 216, 196, 0.6));
+    border: 2px solid var(--medium-teal);
+    color: var(--dark-teal);
+}
+
+.jumbotron h1 {
+    color: var(--dark-teal);
+    font-weight: bold;
+}
+
+.jumbotron .lead {
+    color: var(--medium-teal);
+}
+
+/* Feature Cards on Homepage */
+.feature-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: var(--off-white);
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(15, 61, 62, 0.2);
+    background-color: white;
+}
+
+/* Icons */
+.text-success {
+    color: var(--golden-brown) !important;
+}
+
+.text-info {
+    color: var(--medium-teal) !important;
+}
+
+.text-warning {
+    color: var(--cream) !important;
+}
+
+/* Pagination */
+.pagination .page-link {
+    color: var(--medium-teal);
+    border-color: var(--cream);
+    background-color: var(--off-white);
+}
+
+.pagination .page-link:hover {
+    color: white;
+    background-color: var(--medium-teal);
+    border-color: var(--medium-teal);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--golden-brown);
+    border-color: var(--golden-brown);
+    color: white;
+}
+
+/* Search Form */
+.search-form .form-control {
+    background-color: var(--off-white);
+    border-color: var(--cream);
+}
+
+.search-form .form-control:focus {
+    background-color: white;
+    border-color: var(--medium-teal);
+}
+
+/* Todo Items */
+.todo-item {
+    background-color: var(--off-white);
+    border-left: 4px solid var(--golden-brown);
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 5px;
+    border: 1px solid var(--cream);
+}
+
+.todo-item:hover {
+    background-color: white;
+    border-left-color: var(--medium-teal);
+    transition: all 0.3s ease;
+}
+
+/* Links */
+a {
+    color: var(--medium-teal);
+}
+
+a:hover {
+    color: var(--golden-brown);
+}
+
+/* Custom utility classes */
+.bg-custom-primary {
+    background-color: var(--dark-teal);
+}
+
+.bg-custom-secondary {
+    background-color: var(--cream);
+}
+
+.bg-custom-accent {
+    background-color: var(--golden-brown);
+}
+
+.text-custom-primary {
+    color: var(--dark-teal);
+}
+
+.text-custom-secondary {
+    color: var(--medium-teal);
+}
+
+.text-custom-accent {
+    color: var(--golden-brown);
+}
+
+/* Container spacing */
+.container {
+    max-width: 1200px;
+}
+
+/* Footer (if you add one) */
+.footer {
+    background-color: var(--dark-teal);
+    color: var(--cream);
+    padding: 2rem 0;
+    margin-top: 3rem;
+}
+
+/* Additional styling for better visual hierarchy */
+.text-muted {
+    color: var(--medium-teal) !important;
+}
+
+/* Table styling (if you have tables) */
+.table {
+    background-color: var(--off-white);
+}
+
+.table th {
+    background-color: var(--medium-teal);
+    color: white;
+    border-color: var(--golden-brown);
+}
+
+.table td {
+    border-color: var(--cream);
+}
+
+/* Input group styling */
+.input-group-text {
+    background-color: var(--cream);
+    border-color: var(--cream);
+    color: var(--dark-teal);
+}
+
+/* Modal styling (if you add modals) */
+.modal-header {
+    background-color: var(--medium-teal);
+    color: white;
+    border-bottom-color: var(--golden-brown);
+}
+
+.modal-footer {
+    border-top-color: var(--cream);
+}
