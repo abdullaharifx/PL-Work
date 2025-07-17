@@ -4,7 +4,7 @@ from models.user import User
 
 bp = Blueprint('login', __name__, url_prefix='/login')
 
-@bp.route('/login', methods=['GET', 'POST'])
+@bp.route('/', methods=['GET', 'POST'])
 def login_view():
     if request.method == 'POST':
         email = request.form['email']
