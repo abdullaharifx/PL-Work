@@ -11,7 +11,7 @@ bp = Blueprint('profile', __name__, url_prefix='/profile')
 def profile_view():
     user = User.query.get(session['user_id'])
     todo_count = Todo.query.filter_by(user_id=user.id).count()
-    return render_template('profile.html', user=user, todo_count=todo_count)
+    return render_template('user/profile.html', user=user, todo_count=todo_count)
 
 @bp.route('/delete_account', methods=['GET', 'POST'])
 @login_required

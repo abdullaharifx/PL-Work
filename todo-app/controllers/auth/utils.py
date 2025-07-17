@@ -11,3 +11,10 @@ def login_required(f):
             return redirect(url_for('login.login_view'))
         return f(*args, **kwargs)
     return decorated_function
+
+def current_user():
+    from models.user import User
+    user_id = session.get('user_id')
+    if user_id:
+        return User.query.get(user_id)
+    return None

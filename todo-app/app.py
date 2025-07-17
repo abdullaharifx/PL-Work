@@ -3,6 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import os
 
+
 db = SQLAlchemy()
 
 def create_app():
@@ -23,6 +24,7 @@ def create_app():
 
     # --- [ 3. Initialize DB ] ---
     db.init_app(app)
+    
 
     from models import user, todo  # ensure models are imported
 
