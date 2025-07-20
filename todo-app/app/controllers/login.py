@@ -1,6 +1,6 @@
 # controllers/auth/login.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from models.user import User
+from app.models.user import User
 
 bp = Blueprint('login', __name__, url_prefix='/login')
 

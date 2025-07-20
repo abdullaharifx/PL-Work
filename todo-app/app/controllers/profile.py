@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, session, flash, request, redirect, url_for
-from models.user import User
-from models.todo import Todo
-from app import db
-from controllers.auth.utils import login_required
+from app.models.user import User
+from app.models.todo import Todo
+from app.extensions import db
+from app.utils import login_required
 
 bp = Blueprint('profile', __name__, url_prefix='/profile')
 

@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, session
-from models.todo import Todo
-from controllers.auth.utils import login_required
+from app.models.todo import Todo
+from app.utils import login_required
 
 bp = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 

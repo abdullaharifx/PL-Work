@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models.user import User
-from app import db
+from app.models.user import User
+from app.extensions import db
 
 bp = Blueprint('register', __name__, url_prefix='/register')
 
