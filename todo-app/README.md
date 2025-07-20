@@ -71,11 +71,11 @@ todo-app
 
 ### Main
 
-![Main](static/img/main.png)
+![Main](app/static/img/main.png)
 
 ### TODO List
 
-![TODO List](static/img/todo.png)
+![TODO List](app/static/img/todo.png)
 
 
 ## Getting Started
