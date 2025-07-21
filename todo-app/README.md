@@ -218,7 +218,7 @@ We welcome contributions! Please follow these steps:
 
 ## License
 
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License**. See the [LICENSE](https://github.com/abdullaharifx/PL-Work/blob/main/todo-app/LICENSE.md) file for details.
 
 ---
 
