@@ -5,15 +5,18 @@ from langchain_core.runnables import RunnableSequence
 from langchain_core.prompts import ChatPromptTemplate
 import os
 from dotenv import load_dotenv
-# streamlit
 import streamlit as st
+load_dotenv()
+
+# Environment variables setup
+google_api_key = os.getenv("GOOGLE_API_KEY")
+langchain_api_key = os.getenv("LANGCHAIN_API_KEY")
+project_id = os.getenv("LANGCHAIN_PROJECT_ID")
 
 
-os.environ["LANGCHAIN_PROJECT_ID"] = os.getenv("LANGCHAIN_PROJECT_ID")
-
-# langsmit tracking
+os.environ["LANGCHAIN_PROJECT_ID"] = project_id
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
-os.environ["LANGCHAIN_API_KEY"]  = os.getenv("LANGCHAIN_API_KEY")
+os.environ["LANGCHAIN_API_KEY"]  = langchain_api_key
 
 
 ## prompt template
@@ -32,7 +35,7 @@ input_text = st.text_input("Ask a question:")
 # llm
 llm = ChatGoogleGenerativeAI(
     model="models/gemini-1.5-flash",
-    google_api_key=os.getenv("GOOGLE_API_KEY"),
+    google_api_key=google_api_key,
     temperature=2.0,
     max_output_tokens=1024,
     top_p=0.8,
