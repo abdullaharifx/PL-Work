@@ -251,3 +251,13 @@ static/uploads/
 
 # Cache
 .cache/
+
+.env
+__pycache__/
+*.pyc
+*.pkl
+.env/
+*.env
+venv/
+env/
+genai-env/

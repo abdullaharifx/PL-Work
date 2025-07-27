@@ -42,20 +42,27 @@ prompt2 = ChatPromptTemplate.from_template(
 
 ## LLMs
 
-llm1 = ChatGoogleGenerativeAI(
-    model="models/gemini-1.5-flash",
-    google_api_key=google_api_key,
-    temperature=2.0,
-    max_output_tokens=1024,
-    top_p=0.8,
-)
+try:
+    llm1 = ChatGoogleGenerativeAI(
+        model="models/gemini-1.5-flash",
+        google_api_key=google_api_key,
+        temperature=2.0,
+        max_output_tokens=1024,
+        top_p=0.8,
+    )
+except Exception as e:
+    print("Gemini LLM Error:", e)
 
-llm2 = ChatGroq(
-    model="deepseek-r1-distill-llama-70b",
-    temperature=1.2,
-    max_tokens=1000,
-    reasoning_format="parsed",
-)
+try:
+    llm2 = ChatGroq(
+        model="deepseek-r1-distill-llama-70b",
+        temperature=1.2,
+        max_tokens=1000,
+        reasoning_format="parsed",
+    )
+except Exception as e:
+    print("Groq LLM Error:", e)
+
 
 # making chains
 
