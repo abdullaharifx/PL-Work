@@ -73,3 +73,6 @@ if input_text:
     
     # display the response
     st.write("Response:", response)
+
+
+    
