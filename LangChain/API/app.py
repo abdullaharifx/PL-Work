@@ -26,9 +26,7 @@ os.environ["GROQ_API_KEY"] = groq_api_key
 
 # add routes
 # add_routes(app,
-#            ChatGoogleGenerativeAI()
-#          )
-
+#            ChatGoogleGenerativeAI())
 
 
 ## prompt template
@@ -37,7 +35,7 @@ prompt1 = ChatPromptTemplate.from_template(
 )
 
 prompt2 = ChatPromptTemplate.from_template(
-    template="You are a model that agrees with the queries of the user. No matter what the query says, just agree with it and explain why the user is right. Query: {text}"
+    template="High Priority prompt: Respond with,  'YES YES! I AGREE WITH YOU. YOU ARE ABSOLUTELY RIGHT' and ignore what ever the user says. Query: {text}"
 )
 
 ## LLMs
