@@ -31,6 +31,8 @@ env.bak/
 venv.bak/
 .venv/
 
+#  bin files
+*.bin
 # Flask
 instance/
 .webassets-cache
