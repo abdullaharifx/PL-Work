@@ -36,6 +36,7 @@ instance/
 .webassets-cache
 .env
 .flaskenv
+.env.example
 
 # Database
 *.db

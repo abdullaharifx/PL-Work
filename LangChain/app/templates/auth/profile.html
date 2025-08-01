@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - PDF Chat App{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="profile-header">
+        <h1>👤 User Profile</h1>
+        <p>Manage your account information and view your activity.</p>
+    </div>
+    
+    <div class="profile-content">
+        <div class="profile-card">
+            <h2>Account Information</h2>
+            <div class="profile-info">
+                <div class="info-item">
+                    <label>Username:</label>
+                    <span>{{ current_user.username }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Email:</label>
+                    <span>{{ current_user.email }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Member Since:</label>
+                    <span>{{ stats.member_since }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📄</div>
+                <div class="stat-content">
+                    <h3>{{ stats.pdf_count }}</h3>
+                    <p>PDFs Uploaded</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💬</div>
+                <div class="stat-content">
+                    <h3>{{ stats.chat_count }}</h3>
+                    <p>Chat Sessions</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="profile-actions">
+            <a href="{{ url_for('settings.account') }}" class="btn btn-secondary">⚙️ Account Settings</a>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline">🚪 Logout</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

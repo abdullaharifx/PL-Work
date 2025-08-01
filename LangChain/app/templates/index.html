@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Home - PDF Chat App{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1>🤖 AI-Powered PDF Chat</h1>
+        <p class="hero-subtitle">Upload your PDFs and chat with them using advanced AI. Get instant answers with page references.</p>
+        
+        {% if current_user.is_authenticated %}
+            <div class="hero-actions">
+                <a href="{{ url_for('file_upload.upload') }}" class="btn btn-primary">📤 Upload PDF</a>
+                <a href="{{ url_for('chat.new_session') }}" class="btn btn-secondary">💬 Start Chat</a>
+            </div>
+            
+            <div class="user-stats">
+                <div class="stat-card">
+                    <h3>{{ current_user.pdf_documents|length }}</h3>
+                    <p>PDFs Uploaded</p>
+                </div>
+                <div class="stat-card">
+                    <h3>{{ current_user.chat_sessions|selectattr('is_active')|list|length }}</h3>
+                    <p>Active Chats</p>
+                </div>
+            </div>
+        {% else %}
+            <div class="hero-actions">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary">🚀 Get Started</a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">🔑 Login</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="features-section">
+    <div class="container">
+        <h2>✨ Key Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📄</div>
+                <h3>Multi-PDF Support</h3>
+                <p>Upload and manage multiple PDF documents. Extract text with page-level precision.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>Smart Search</h3>
+                <p>Advanced vector search finds relevant content across all your documents instantly.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3>Interactive Chat</h3>
+                <p>Natural conversation with your documents. Get answers with specific page references.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📝</div>
+                <h3>Custom Templates</h3>
+                <p>Choose response formats: bullet points, narratives, or create your own templates.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💾</div>
+                <h3>Session Management</h3>
+                <p>Save, name, and organize your chat sessions for easy reference.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Secure & Private</h3>
+                <p>Your documents and conversations are private and securely stored.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not current_user.is_authenticated %}
+<div class="cta-section">
+    <div class="container">
+        <h2>Ready to get started?</h2>
+        <p>Join thousands of users who are already chatting with their PDFs.</p>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-large">Create Free Account</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

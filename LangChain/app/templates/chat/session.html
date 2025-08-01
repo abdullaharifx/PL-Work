@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}{{ session.name }} - PDF Chat App{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-header">
+        <div class="session-info">
+            <h1>{{ session.name }}</h1>
+            <p class="session-meta">Created {{ session.created_at.strftime('%Y-%m-%d') }}</p>
+        </div>
+        
+        <div class="chat-controls">
+            <div class="template-selector">
+                <label for="responseTemplate">Response Style:</label>
+                <select id="responseTemplate" class="form-select">
+                    <option value="default">Standard</option>
+                    <option value="bullet_points">Bullet Points</option>
+                    <option value="story">Narrative</option>
+                </select>
+            </div>
+            
+            <button class="btn btn-sm btn-secondary" onclick="toggleSessionSettings()">⚙️ Settings</button>
+        </div>
+    </div>
+    
+    <div class="session-settings" id="sessionSettings" style="display: none;">
+        <div class="settings-content">
+            <form method="POST" action="{{ url_for('chat.rename_session', session_id=session.id) }}" 
+                  style="display: inline-block; margin-right: 10px;">
+                <input type="text" name="new_name" value="{{ session.name }}" 
+                       placeholder="New session name" required>
+                <button type="submit" class="btn btn-sm btn-primary">Rename</button>
+            </form>
+            
+            <form method="POST" action="{{ url_for('chat.delete_session', session_id=session.id) }}" 
+                  style="display: inline-block;"
+                  onsubmit="return confirm('Are you sure you want to delete this session?')">
+                <button type="submit" class="btn btn-sm btn-danger">Delete Session</button>
+            </form>
+        </div>
+    </div>
+    
+    {% if pdf_count == 0 %}
+        <div class="chat-warning">
+            <p>⚠️ No processed PDFs found. Please <a href="{{ url_for('file_upload.upload') }}">upload some PDFs</a> first.</p>
+        </div>
+    {% else %}
+        <div class="chat-messages" id="chatMessages">
+            {% for message in messages %}
+                <div class="message {% if message.is_user %}user-message{% else %}ai-message{% endif %}">
+                    <div class="message-content">
+                        <div class="message-text">{{ message.content }}</div>
+                        
+                        {% if not message.is_user and message.sources %}
+                            {% set sources = message.sources | from_json %}
+                            {% if sources %}
+                                <div class="message-sources">
+                                    <strong>Sources:</strong>
+                                    {% for source in sources %}
+                                        <span class="source-tag">
+                                            {{ source.document_name }} (Page {{ source.page_number }})
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="message-time">{{ message.created_at.strftime('%H:%M') }}</div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+                <textarea id="messageInput" placeholder="Ask a question about your PDFs..." 
+                         rows="3" maxlength="1000"></textarea>
+                <button id="sendButton" class="btn btn-primary" onclick="sendMessage()">
+                    <span id="sendButtonText">Send</span>
+                    <span id="sendButtonSpinner" class="spinner" style="display: none;">⏳</span>
+                </button>
+            </div>
+            <div class="input-help">
+                <small>Press Ctrl+Enter to send • {{ pdf_count }} PDFs available for search</small>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+const sessionId = {{ session.id }};
+const messageInput = document.getElementById('messageInput');
+const sendButton = document.getElementById('sendButton');
+const sendButtonText = document.getElementById('sendButtonText');
+const sendButtonSpinner = document.getElementById('sendButtonSpinner');
+const chatMessages = document.getElementById('chatMessages');
+const responseTemplate = document.getElementById('responseTemplate');
+
+// Auto-resize textarea
+messageInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
+});
+
+// Send message on Ctrl+Enter
+messageInput.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+function toggleSessionSettings() {
+    const settings = document.getElementById('sessionSettings');
+    settings.style.display = settings.style.display === 'none' ? 'block' : 'none';
+}
+
+function sendMessage() {
+    const message = messageInput.value.trim();
+    if (!message) return;
+    
+    // Disable input
+    messageInput.disabled = true;
+    sendButton.disabled = true;
+    sendButtonText.style.display = 'none';
+    sendButtonSpinner.style.display = 'inline';
+    
+    // Add user message to chat
+    addMessageToChat(message, true);
+    
+    // Clear input
+    messageInput.value = '';
+    messageInput.style.height = 'auto';
+    
+    // Send to API
+    fetch('/chat/api/send_message', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            session_id: sessionId,
+            message: message,
+            template_type: responseTemplate.value
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Add AI response to chat
+            addAIMessageToChat(data.ai_message.content, data.ai_message.sources);
+        } else {
+            addMessageToChat('Error: ' + (data.error || 'Failed to get response'), false, true);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        addMessageToChat('Error: Failed to send message. Please try again.', false, true);
+    })
+    .finally(() => {
+        // Re-enable input
+        messageInput.disabled = false;
+        sendButton.disabled = false;
+        sendButtonText.style.display = 'inline';
+        sendButtonSpinner.style.display = 'none';
+        messageInput.focus();
+    });
+}
+
+function addMessageToChat(content, isUser, isError = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}${isError ? ' error-message' : ''}`;
+    
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { 
+        hour12: false, 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
+    
+    messageDiv.innerHTML = `
+        <div class="message-content">
+            <div class="message-text">${content}</div>
+        </div>
+        <div class="message-time">${timeString}</div>
+    `;
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function addAIMessageToChat(content, sources) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message ai-message';
+    
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { 
+        hour12: false, 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
+    
+    let sourcesHtml = '';
+    if (sources && sources.length > 0) {
+        sourcesHtml = '<div class="message-sources"><strong>Sources:</strong>';
+        sources.forEach(source => {
+            sourcesHtml += `<span class="source-tag">${source.document} (Page ${source.page})</span>`;
+        });
+        sourcesHtml += '</div>';
+    }
+    
+    messageDiv.innerHTML = `
+        <div class="message-content">
+            <div class="message-text">${content}</div>
+            ${sourcesHtml}
+        </div>
+        <div class="message-time">${timeString}</div>
+    `;
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Focus on input when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    messageInput.focus();
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+</script>
+{% endblock %}
