@@ -1,0 +1,17 @@
+<!-- Search Form -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <form method="GET" class="d-flex">
+            <input type="text" class="form-control me-2" name="search" 
+                   placeholder="Search todos..." value="{{ search }}">
+            <button type="submit" class="btn btn-outline-primary">
+                <i class="fas fa-search"></i>
+            </button>
+            {% if search %}
+                <a href="{{ url_for('dashboard.dashboard_view') }}" class="btn btn-outline-secondary ms-2">
+                    <i class="fas fa-times"></i>
+                </a>
+            {% endif %}
+        </form>
+    </div>
+</div>
