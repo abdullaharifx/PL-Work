@@ -1,25 +1,28 @@
 import os
-from flask import Flask, render_template
+from flask import Flask, app, render_template
 from flask_sqlalchemy import SQLAlchemy
 from .extensions import db
 from .controllers import register_routes  # will create this below
 import os
 import dotenv
+from config import DevelopmentConfig
 
 dotenv.load_dotenv()
 
 
 # from controllers import login, logout
 from app.controllers import register_routes
-def create_app():
+def create_app(config_class=DevelopmentConfig):
     app = Flask(__name__,
                 template_folder='templates',
                 static_folder='static',
                 instance_relative_config=True)
 
     # --- Config ---
-    
+    app.config.from_object(config_class)
 
+
+    
 
     # --- Extensions ---
     db.init_app(app)

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from app.models.chat import Todo
 from app import db
-from app.utils import login_required
+from app.utils.utils import login_required
 
 bp = Blueprint('edit', __name__, url_prefix='/edit')
 

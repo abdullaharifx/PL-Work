@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, session
 from app.models.chat import Todo
-from app.utils import login_required
+from app.utils.utils import login_required
 
 bp = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 

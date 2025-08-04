@@ -1,7 +1,7 @@
 from flask import Blueprint, redirect, url_for, session, flash
 from app.models.chat import Todo
 from app import db
-from app.utils import login_required
+from app.utils.utils import login_required
 
 bp = Blueprint('delete', __name__, url_prefix='/delete')
 

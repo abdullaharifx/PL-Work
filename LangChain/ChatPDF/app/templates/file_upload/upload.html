@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Upload PDFs</title>
+</head>
+<body>
+    <h1>Upload PDFs to Chat</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="chat_id" value="{{ request.args.get('chat_id') or '' }}" />
+        <input type="file" name="pdf_files" accept="application/pdf" multiple required />
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>

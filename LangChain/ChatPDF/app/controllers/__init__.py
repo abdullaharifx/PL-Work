@@ -11,6 +11,7 @@ def register_routes(app):
         create,
         delete,
         edit,
+        file_upload
     )
 
     app.register_blueprint(index.bp)
@@ -22,4 +23,5 @@ def register_routes(app):
     app.register_blueprint(create.bp)
     app.register_blueprint(delete.bp)
     app.register_blueprint(edit.bp)
+    app.register_blueprint(file_upload.bp)
     return app

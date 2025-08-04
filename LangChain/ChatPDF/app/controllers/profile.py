@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, session, flash, request, redirect,
 from app.models.user import User
 from app.models.chat import Todo
 from app.extensions import db
-from app.utils import login_required
+from app.utils.utils import login_required
 
 bp = Blueprint('profile', __name__, url_prefix='/profile')
 
