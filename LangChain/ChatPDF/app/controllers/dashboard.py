@@ -10,15 +10,15 @@ def dashboard_view():
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '', type=str)
 
-    query = Chat.query.filter_by(user_id=session['user_id'])
+    query = ChatSession.query.filter_by(user_id=session['user_id'])
 
     if search:
         query = query.filter(
-            (Chat.title.contains(search)) |
-            (Chat.description.contains(search))
+            (ChatSession.title.contains(search)) |
+            (ChatSession.description.contains(search))
         )
 
-    Chats = query.order_by(Chat.created_at.desc()).paginate(
+    Chats = query.order_by(ChatSession.created_at.desc()).paginate(
         page=page, per_page=5, error_out=False
     )
 

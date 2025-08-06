@@ -57,7 +57,7 @@ def create_app(config_class=DevelopmentConfig):
         return render_template("./index.html")
     
 
-    
+
     register_routes(app)
 
 
@@ -77,7 +77,9 @@ def create_app(config_class=DevelopmentConfig):
         # TODO: Create a new chat
         return "New chat page"
 
-    with app.app_context():        
+    with app.app_context():
+        # Import all models to ensure they're registered with SQLAlchemy
+        from . import models        
         db.create_all()
 
     return app

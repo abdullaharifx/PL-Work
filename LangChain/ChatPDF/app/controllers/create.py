@@ -16,7 +16,7 @@ def create_view():
             flash('Both title and description are required!', 'error')
             return render_template('Chat/create.html')
 
-        new_chat = Chat(
+        new_chat = ChatSession( 
             title=title,
             description=description,
             user_id=session['user_id']

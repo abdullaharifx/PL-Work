@@ -10,7 +10,7 @@ bp = Blueprint('profile', __name__, url_prefix='/profile')
 @login_required
 def profile_view():
     user = User.query.get(session['user_id'])
-    Chat_count = Chat.query.filter_by(user_id=user.id).count()
+    Chat_count = ChatSession.query.filter_by(user_id=user.id).count()
     return render_template('user/profile.html', user=user, Chat_count=Chat_count)
 
 @bp.route('/delete_account', methods=['GET', 'POST'])
