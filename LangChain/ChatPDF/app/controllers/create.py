@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from app.models.chat import ChatSession
+from app.models.user import User
 from app.extensions import db
 from app.utils.utils import login_required
 
@@ -14,14 +15,10 @@ def create_view():
 
         if not title or not description:
             flash('Both title and description are required!', 'error')
-            return render_template('chat/chat_session.html')
+            return render_template('chat/create.html')
 
-        # Check if the user has any chat sessions
-        existing_chats = ChatSession.query.filter_by(user_id=session['user_id']).count()
-
-        # Manually set id=1 if no chat exists
+        # Create new chat session
         new_chat = ChatSession(
-            id=1 if existing_chats == 0 else None,
             title=title,
             description=description,
             user_id=session['user_id']
@@ -30,7 +27,11 @@ def create_view():
         db.session.add(new_chat)
         db.session.commit()
 
-        flash('Chat created successfully!', 'success')
-        return redirect(url_for('dashboard.dashboard_view'))
+        # Get the user for the redirect
+        user = User.query.get(session['user_id'])
 
-    return render_template('chat/chat_session.html')
+        flash('Chat created successfully!', 'success')
+        # Redirect to the new chat session page
+        return redirect(url_for('chat_controller.view_chat', username=user.username, chat_id=new_chat.id))
+
+    return render_template('chat/create.html')

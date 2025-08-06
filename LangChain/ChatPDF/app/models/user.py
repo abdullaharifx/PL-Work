@@ -11,6 +11,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(200), nullable=False)
 
     chats = db.relationship('ChatSession', back_populates='user', lazy='dynamic', cascade='all, delete-orphan')
+    pdfs = db.relationship('PDF', back_populates='user', lazy='dynamic', cascade='all, delete-orphan')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
