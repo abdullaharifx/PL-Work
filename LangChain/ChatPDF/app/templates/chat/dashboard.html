@@ -4,34 +4,106 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-tachometer-alt"></i> Your Todos</h2>
+    <h2><i class="fas fa-tachometer-alt"></i> Your Chats</h2>
     <a href="{{ url_for('create.create_view') }}" class="btn btn-success">
-        <i class="fas fa-plus"></i> New Todo
+        <i class="fas fa-plus"></i> New Chat
     </a>
 </div>
 
 <!-- Search Form -->
-{% include 'todo/search.html' %}    
+<div class="mb-4">
+    <form method="GET" class="d-flex">
+        <input type="text" name="search" class="form-control me-2" 
+               placeholder="Search chats..." value="{{ search or '' }}">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-search"></i> Search
+        </button>
+        {% if search %}
+        <a href="{{ url_for('dashboard.dashboard_view') }}" class="btn btn-secondary ms-2">
+            <i class="fas fa-times"></i> Clear
+        </a>
+        {% endif %}
+    </form>
+</div>
 
-<!-- Todos List -->
-{% if todos.items %}
-
-    {% set todos = todos %}
-    {% include 'todo/list.html' %} 
+<!-- Chats List -->
+{% if Chats.items %}
+    <div class="row">
+        {% for chat in Chats.items %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ chat.title }}</h5>
+                    <p class="card-text">{{ chat.description }}</p>
+                    <p class="text-muted small">
+                        <i class="fas fa-calendar"></i> {{ chat.created_at.strftime('%B %d, %Y') }}
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <div class="btn-group w-100" role="group">
+                        <a href="{{ url_for('chat.view_chat', chat_id=chat.id) }}" class="btn btn-primary">
+                            <i class="fas fa-comments"></i> Open
+                        </a>
+                        <a href="{{ url_for('edit.edit_view', chat_id=chat.id) }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a href="{{ url_for('delete.delete_view', chat_id=chat.id) }}" class="btn btn-outline-danger">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
     <!-- Pagination -->
-     {% set pagination = todos %}
-     {% include 'todo/pagination.html' %}
+    {% if Chats.pages > 1 %}
+    <nav aria-label="Chat pagination">
+        <ul class="pagination justify-content-center">
+            {% if Chats.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('dashboard.dashboard_view', page=Chats.prev_num, search=search) }}">Previous</a>
+            </li>
+            {% endif %}
+            
+            {% for page_num in Chats.iter_pages() %}
+                {% if page_num %}
+                    {% if page_num != Chats.page %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('dashboard.dashboard_view', page=page_num, search=search) }}">{{ page_num }}</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ page_num }}</span>
+                    </li>
+                    {% endif %}
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if Chats.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('dashboard.dashboard_view', page=Chats.next_num, search=search) }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
 
 {% else %}
     <div class="text-center py-5">
-        <i class="fas fa-tasks fa-5x text-muted mb-3"></i>
-        <h4 class="text-muted">No todos found</h4>
+        <i class="fas fa-comments fa-5x text-muted mb-3"></i>
+        <h4 class="text-muted">No chats found</h4>
         {% if search %}
-            <p>No todos match your search criteria.</p>
-            <a href="{{ url_for('dashboard.dashboard_view') }}" class="btn btn-primary">View All Todos</a>
+            <p>No chats match your search criteria.</p>
+            <a href="{{ url_for('dashboard.dashboard_view') }}" class="btn btn-primary">View All Chats</a>
         {% else %}
-            <p>You haven't created any todos yet.</p>
-            <a href="{{ url_for('create.create_view') }}" class="btn btn-success">Create Your First Todo</a>
+            <p>You haven't created any chats yet.</p>
+            <a href="{{ url_for('create.create_view') }}" class="btn btn-success">Create Your First Chat</a>
         {% endif %}
     </div>
 {% endif %}
