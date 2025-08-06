@@ -1,11 +1,13 @@
 import os
+# session
+from flask import session
 from flask import (
     Blueprint, request, render_template, current_app, redirect, url_for, flash, send_from_directory
 )
 from werkzeug.utils import secure_filename
 from app.models.pdf import PDF
 from app.extensions import db
-from app.utils.pdf_preprocessing import process_pdf_file
+from app.utils.pdf_processing import process_pdf_file
 
 bp = Blueprint('file_upload', __name__, url_prefix='/upload')
 
@@ -17,11 +19,12 @@ def allowed_file(filename):
 
 @bp.route('/submit', methods=['POST'])
 def upload_file():
-    if 'pdf_files' not in request.files:
+    if 'pdf_file' not in request.files:
         flash('No file part')
         return redirect(request.url)
-    
-    files = request.files.getlist('pdf_files')
+
+    files = [request.files['pdf_file']]  # Wrap single file in a list
+
     chat_id = request.form.get('chat_id')  # Get chat to associate upload with
 
     if not chat_id:
@@ -35,15 +38,15 @@ def upload_file():
             file.save(filepath)
 
             # Save metadata in DB
-            pdf = PDF(filename=filename, chat_id=int(chat_id))
+            pdf = PDF(filename=filename, chat_id=int(chat_id), user_id=session.get('user_id'))
             db.session.add(pdf)
             db.session.commit()
 
             # Process the PDF file
-            process_pdf_file(filepath, chat_id, pdf.id)
+            #process_pdf_file(filepath, chat_id, pdf.id)
 
     flash('PDF(s) uploaded successfully!')
-    return redirect(url_for('chat.view_chat', chat_id=chat_id))
+    return redirect(url_for('chat_controller.view_chat', chat_id=chat_id, username=session.get('username')))
 
 
 @bp.route('/<int:chat_id>', methods=['GET'])
