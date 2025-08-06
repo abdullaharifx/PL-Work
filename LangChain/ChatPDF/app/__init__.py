@@ -2,7 +2,7 @@ import os
 from flask import Flask, app, render_template
 from flask_sqlalchemy import SQLAlchemy
 
-from .controllers import chat
+from .controllers import edit, edit
 from .extensions import db
 import dotenv
 from config.config import DevelopmentConfig
@@ -20,7 +20,7 @@ def register_routes(app):
         dashboard,
         create,
         delete,
-        chat,
+        chat_controller,
         file_upload
     )
 
@@ -32,7 +32,8 @@ def register_routes(app):
     app.register_blueprint(dashboard.bp)
     app.register_blueprint(create.bp)
     app.register_blueprint(delete.bp)
-    app.register_blueprint(chat.bp)
+    app.register_blueprint(edit.bp)
+    app.register_blueprint(chat_controller.bp)
     app.register_blueprint(file_upload.bp)
     return app
 
@@ -63,11 +64,6 @@ def create_app(config_class=DevelopmentConfig):
     register_routes(app)
 
 
-
-    @app.route("/chat/<username>/<int:chat_id>")
-    def chat(username, chat_id):
-        # TODO: Render chat page for username and chat_id
-        return f"Chat page for user '{username}' and chat ID: {chat_id}"
 
     @app.route("/upload", methods=["GET", "POST"])
     def upload():

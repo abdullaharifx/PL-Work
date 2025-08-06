@@ -7,5 +7,6 @@ from . import profile
 from . import dashboard
 from . import create
 from . import delete
-from . import chat
+from . import edit
+from . import chat_controller
 from . import file_upload

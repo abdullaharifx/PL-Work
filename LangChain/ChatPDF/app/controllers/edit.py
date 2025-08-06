@@ -27,6 +27,6 @@ def edit_view(chat_id):
         db.session.commit()
 
         flash('Chat updated successfully!', 'success')
-        return redirect(url_for('dashboard.dashboard_view'))
+        return redirect(url_for('chat_controller.view_chat', username=chat.user.username, chat_id=chat.id))
 
     return render_template('chat/edit.html', chat=chat)
