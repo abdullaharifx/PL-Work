@@ -14,7 +14,7 @@ def create_view():
 
         if not title or not description:
             flash('Both title and description are required!', 'error')
-            return render_template('Chat/create.html')
+            return render_template('chat/create.html')
 
         new_chat = ChatSession( 
             title=title,

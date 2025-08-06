@@ -22,4 +22,4 @@ def dashboard_view():
         page=page, per_page=5, error_out=False
     )
 
-    return render_template('Chat/dashboard.html', Chats=Chats, search=search)
+    return render_template('layout/dashboard.html', Chats=Chats, search=search)

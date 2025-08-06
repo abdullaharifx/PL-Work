@@ -1,6 +1,8 @@
 import os
 from flask import Flask, app, render_template
 from flask_sqlalchemy import SQLAlchemy
+
+from .controllers import chat
 from .extensions import db
 import dotenv
 from config.config import DevelopmentConfig
@@ -18,7 +20,7 @@ def register_routes(app):
         dashboard,
         create,
         delete,
-        edit,
+        chat,
         file_upload
     )
 
@@ -30,7 +32,7 @@ def register_routes(app):
     app.register_blueprint(dashboard.bp)
     app.register_blueprint(create.bp)
     app.register_blueprint(delete.bp)
-    app.register_blueprint(edit.bp)
+    app.register_blueprint(chat.bp)
     app.register_blueprint(file_upload.bp)
     return app
 
@@ -62,20 +64,20 @@ def create_app(config_class=DevelopmentConfig):
 
 
 
-    @app.route("/chat/<int:chat_id>")
-    def chat(chat_id):
-        # TODO: Render chat page for chat_id
-        return f"Chat page for chat ID: {chat_id}"
+    @app.route("/chat/<username>/<int:chat_id>")
+    def chat(username, chat_id):
+        # TODO: Render chat page for username and chat_id
+        return f"Chat page for user '{username}' and chat ID: {chat_id}"
 
     @app.route("/upload", methods=["GET", "POST"])
     def upload():
         # TODO: Handle file upload
-        return "Upload page"
+        return render_template("file_upload/upload.html")
 
     @app.route("/new_chat", methods=["GET", "POST"])
     def new_chat():
         # TODO: Create a new chat
-        return "New chat page"
+        return render_template("chat/new_chat.html")
 
     with app.app_context():
         # Import all models to ensure they're registered with SQLAlchemy

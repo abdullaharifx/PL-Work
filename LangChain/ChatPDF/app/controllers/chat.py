@@ -3,7 +3,7 @@ from app.models.chat import ChatSession
 from app.extensions import db
 from app.utils.utils import login_required
 
-bp = Blueprint('edit', __name__, url_prefix='/edit')
+bp = Blueprint('chat', __name__, url_prefix='/edit')
 
 @bp.route('/<int:chat_id>', methods=['GET', 'POST'])
 @login_required
@@ -20,7 +20,7 @@ def edit_view(chat_id):
 
         if not title or not description:
             flash('Both title and description are required!', 'error')
-            return render_template('chat/edit.html', chat=chat)
+            return render_template('chat/chats.html', chat=chat)
 
         chat.title = title
         chat.description = description

@@ -1,41 +1,61 @@
 {% extends "base.html" %}
 
-{% block title %}Create Chat - ChatPDF App{% endblock %}
+{% block title %}PDF Chat - ChatPDF App{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h3><i class="fas fa-plus"></i> Create New Chat</h3>
+<div class="container-fluid py-3" style="height: 90vh;">
+    <div class="row h-100">
+        
+        <!-- Sidebar for PDF Upload and Session Info -->
+        <div class="col-md-3 bg-light border-end p-3 d-flex flex-column">
+            <h5><i class="fas fa-file-pdf"></i> Upload PDF</h5>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <input type="file" class="form-control" name="pdf_file" required>
+                </div>
+                <div class="mb-3">
+                    <label for="title" class="form-label">Chat Title</label>
+                    <input type="text" class="form-control" name="title" maxlength="50" required>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" name="description" rows="3" maxlength="500"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-paper-plane"></i> Start Chat</button>
+            </form>
+            <hr>
+            <a href="{{ url_for('dashboard.dashboard_view') }}" class="btn btn-outline-secondary mt-auto"><i class="fas fa-arrow-left"></i> Back</a>
+        </div>
+
+        <!-- Chat Window -->
+        <div class="col-md-9 d-flex flex-column p-0 h-100">
+            <div class="border-bottom p-3 bg-white">
+                <h4 class="mb-0"><i class="fas fa-comments"></i> PDF Chat Session</h4>
             </div>
-            <div class="card-body">
-                <form method="POST">
-                    <div class="mb-3">
-                        <label for="title" class="form-label">Title</label>
-                        <input type="text" class="form-control" id="title" name="title" 
-                               maxlength="50" required>
-                        <div class="form-text">Maximum 50 characters</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" id="description" name="description" 
-                                  rows="4" maxlength="2000" required></textarea>
-                        <div class="form-text">Maximum 2000 characters</div>
-                    </div>
-                    
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save"></i> Create Chat
-                        </button>
-                        <a href="{{ url_for('dashboard.dashboard_view') }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to Dashboard
-                        </a>
+
+            <!-- Chat History -->
+            <div class="flex-grow-1 overflow-auto p-4" id="chat-window" style="background-color: #f9f9f9;">
+                <!-- Example chat bubbles -->
+                <div class="mb-3">
+                    <div class="bg-primary text-white p-3 rounded-start rounded-pill float-end" style="max-width: 75%;">Hello, summarize this PDF</div>
+                </div>
+                <div class="mb-3">
+                    <div class="bg-light p-3 rounded-end rounded-pill float-start" style="max-width: 75%;">This PDF is about...</div>
+                </div>
+                <!-- Chat messages will go here dynamically -->
+            </div>
+
+            <!-- Chat Input -->
+            <div class="border-top p-3 bg-white">
+                <form id="chat-form" method="POST" action="">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Ask something..." name="user_input" required>
+                        <button class="btn btn-success" type="submit"><i class="fas fa-paper-plane"></i></button>
                     </div>
                 </form>
             </div>
         </div>
+
     </div>
 </div>
 {% endblock %}

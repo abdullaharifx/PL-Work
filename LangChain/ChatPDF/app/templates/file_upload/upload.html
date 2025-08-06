@@ -1,15 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <title>Upload PDFs</title>
-</head>
-<body>
-    <h1>Upload PDFs to Chat</h1>
+{% extends "base.html" %}
+
+{% block title %}Upload PDFs{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Upload PDFs to Chat</h1>
     <form method="POST" enctype="multipart/form-data">
         <input type="hidden" name="chat_id" value="{{ request.args.get('chat_id') or '' }}" />
-        <input type="file" name="pdf_files" accept="application/pdf" multiple required />
-        <button type="submit">Upload</button>
+        <div class="mb-3">
+            <label for="pdf_files" class="form-label">Choose PDF files</label>
+            <input type="file" class="form-control" id="pdf_files" name="pdf_files" accept="application/pdf" multiple required />
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
     </form>
-</body>
-</html>
+{% endblock %}

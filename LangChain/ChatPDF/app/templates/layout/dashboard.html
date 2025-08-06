@@ -44,7 +44,7 @@
                         <a href="/chat/{{ chat.user.username }}/{{ chat.id }}" class="btn btn-primary">
                             <i class="fas fa-comments"></i> Open
                         </a>
-                        <a href="{{ url_for('chat.edit_view', chat_id=chat.id) }}" class="btn btn-outline-secondary">
+                        <a href="{{ url_for('edit.edit_view', chat_id=chat.id) }}" class="btn btn-outline-secondary">
                             <i class="fas fa-edit"></i> Edit
                         </a>
                         <a href="{{ url_for('delete.delete_view', chat_id=chat.id) }}" class="btn btn-outline-danger">
