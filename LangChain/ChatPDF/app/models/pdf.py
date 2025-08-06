@@ -1,5 +1,6 @@
 from datetime import datetime
 from app.extensions import db
+from app.models.chat import ChatSession
 
 class PDF(db.Model):
     __tablename__ = "pdfs"

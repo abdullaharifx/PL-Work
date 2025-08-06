@@ -3,7 +3,7 @@ from xmlrpc import client
 from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from chromadb import Client
-from google import genai
+import google.generativeai as genai
 
 # Configure Chroma client (adjust if you use persistence)
 chroma_client = Client()

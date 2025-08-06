@@ -2,16 +2,39 @@ import os
 from flask import Flask, app, render_template
 from flask_sqlalchemy import SQLAlchemy
 from .extensions import db
-from .controllers import register_routes  # will create this below
-import os
 import dotenv
-from config import DevelopmentConfig
+from config.config import DevelopmentConfig
 
 dotenv.load_dotenv()
+# import blueprints and register routes
+  
+def register_routes(app):
+    from .controllers import (
+        index,
+        login,
+        logout,
+        register,
+        profile,
+        dashboard,
+        create,
+        delete,
+        edit,
+        file_upload
+    )
 
+    app.register_blueprint(index.bp)
+    app.register_blueprint(login.bp)
+    app.register_blueprint(logout.bp)
+    app.register_blueprint(register.bp)
+    app.register_blueprint(profile.bp)
+    app.register_blueprint(dashboard.bp)
+    app.register_blueprint(create.bp)
+    app.register_blueprint(delete.bp)
+    app.register_blueprint(edit.bp)
+    app.register_blueprint(file_upload.bp)
+    return app
 
 # from controllers import login, logout
-from app.controllers import register_routes
 def create_app(config_class=DevelopmentConfig):
     app = Flask(__name__,
                 template_folder='templates',
@@ -31,7 +54,13 @@ def create_app(config_class=DevelopmentConfig):
         
     @app.route("/")
     def index():
-        return render_template("index.html")
+        return render_template("./index.html")
+    
+
+    
+    register_routes(app)
+
+
 
     @app.route("/chat/<int:chat_id>")
     def chat(chat_id):

@@ -3,9 +3,9 @@ from flask import Blueprint, request, render_template, current_app, redirect, ur
 from werkzeug.utils import secure_filename
 from app.models.pdf import PDF
 from app.extensions import db
-from app.utils.pdf_processing import process_pdf_file
+from app.utils.pdf_preprocessing import process_pdf_file
 
-file_upload_bp = Blueprint('file_upload', __name__, url_prefix='/upload')
+bp  = Blueprint('file_upload', __name__, url_prefix='/upload')
 
 UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../uploads')
 ALLOWED_EXTENSIONS = {'pdf', 'txt', 'docx'}
@@ -13,7 +13,7 @@ ALLOWED_EXTENSIONS = {'pdf', 'txt', 'docx'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@file_upload_bp.route('', methods=['GET', 'POST'])
+@bp.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         if 'pdf_files' not in request.files:

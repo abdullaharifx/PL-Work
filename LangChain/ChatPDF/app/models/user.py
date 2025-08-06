@@ -9,9 +9,8 @@ class User(db.Model):
     email = db.Column(db.String(50), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     password_hash = db.Column(db.String(200), nullable=False)
-    chats = db.relationship("ChatSession", back_populates="user", cascade="all, delete-orphan")
 
-    todos = db.relationship('Todo', backref='user', lazy=True, cascade='all, delete-orphan')
+    chats = db.relationship('ChatSession', back_populates='user', lazy='dynamic', cascade='all, delete-orphan')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from app.models.chat import Todo
+from app.models.chat import ChatSession
 from app import db
 from app.utils.utils import login_required
 

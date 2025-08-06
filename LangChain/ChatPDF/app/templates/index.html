@@ -1,20 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}Home - Flask TODO App{% endblock %}
+{% block title %}Home - ChatPDF{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <div class="jumbotron bg-light p-5 rounded">
+        <div class="jumbotron bg-light p-5 rounded shadow-sm">
             <h1 class="display-4">
-                <i class="fas fa-tasks text-custom-primary"></i> Welcome to TODO App
+                <i class="fas fa-file-pdf text-custom-primary"></i> Chat with PDFs
             </h1>
             <p class="lead">
-                A simple and efficient way to manage your daily tasks. 
-                Stay organized and boost your productivity!
+                Stay informed and get answers from your documents!
             </p>
             <hr class="my-4">
-            <p>Get started by creating an account or logging in to manage your todos.</p>
+            <p>Get started by signing up or logging in.</p>
             <div class="d-grid gap-2 d-md-flex justify-content-md-start">
                 <a class="btn btn-primary btn-lg me-md-2" href="{{ url_for('register.register_view') }}">
                     <i class="fas fa-user-plus"></i> Get Started
@@ -27,29 +26,29 @@
 
         <div class="row mt-5">
             <div class="col-md-4">
-                <div class="card h-100 feature-card">
+                <div class="card h-100 feature-card shadow-sm">
                     <div class="card-body text-center">
-                        <i class="fas fa-plus-circle fa-3x text-success mb-3"></i>
-                        <h5 class="card-title">Create Tasks</h5>
-                        <p class="card-text">Easily add new tasks with titles and descriptions.</p>
+                        <i class="fas fa-upload fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Upload PDFs</h5>
+                        <p class="card-text">Drag, drop, and upload documents with ease.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card h-100 feature-card">
+                <div class="card h-100 feature-card shadow-sm">
                     <div class="card-body text-center">
-                        <i class="fas fa-search fa-3x text-info mb-3"></i>
-                        <h5 class="card-title">Search & Filter</h5>
-                        <p class="card-text">Find your tasks quickly with built-in search functionality.</p>
+                        <i class="fas fa-robot fa-3x text-info mb-3"></i>
+                        <h5 class="card-title">Ask Anything</h5>
+                        <p class="card-text">Ask questions and receive context-aware answers instantly.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card h-100 feature-card">
+                <div class="card h-100 feature-card shadow-sm">
                     <div class="card-body text-center">
-                        <i class="fas fa-shield-alt fa-3x text-warning mb-3"></i>
-                        <h5 class="card-title">Secure</h5>
-                        <p class="card-text">Your tasks are private and secure with user authentication.</p>
+                        <i class="fas fa-lock fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">Private & Secure</h5>
+                        <p class="card-text">Your data stays safe. We never store your documents.</p>
                     </div>
                 </div>
             </div>

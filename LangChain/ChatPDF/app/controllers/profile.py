@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, session, flash, request, redirect, url_for
 from app.models.user import User
-from app.models.chat import Todo
+from app.models.chat import ChatSession
 from app.extensions import db
 from app.utils.utils import login_required
 
@@ -10,8 +10,8 @@ bp = Blueprint('profile', __name__, url_prefix='/profile')
 @login_required
 def profile_view():
     user = User.query.get(session['user_id'])
-    todo_count = Todo.query.filter_by(user_id=user.id).count()
-    return render_template('user/profile.html', user=user, todo_count=todo_count)
+    Chat_count = Chat.query.filter_by(user_id=user.id).count()
+    return render_template('user/profile.html', user=user, Chat_count=Chat_count)
 
 @bp.route('/delete_account', methods=['GET', 'POST'])
 @login_required
