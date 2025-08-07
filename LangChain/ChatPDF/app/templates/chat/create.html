@@ -16,47 +16,47 @@
                     <p class="text-muted mb-4">
                         Create a new chat session to start conversing with your PDFs. You can upload PDFs after creating the chat.
                     </p>
-                    
                     <form method="POST">
                         <div class="mb-3">
-                            <label for="title" class="form-label">
-                                <i class="fas fa-heading"></i> Chat Title
+                            <label for="title" class="form-label text-custom-primary">
+                                <i class="fas fa-pen"></i> Chat Title
                             </label>
                             <input type="text" 
-                                   class="form-control" 
-                                   id="title" 
-                                   name="title" 
-                                   maxlength="50" 
-                                   required 
-                                   placeholder="e.g., Research Paper Analysis, Legal Document Review..."
-                                   value="{{ request.form.get('title', '') }}">
-                            <div class="form-text">Give your chat a descriptive title (max 50 characters)</div>
+                                class="form-control shadow-sm" 
+                                id="title" 
+                                name="title" 
+                                maxlength="50" 
+                                required 
+                                placeholder="e.g., Research Paper Analysis, Legal Document Review..."
+                                value="{{ request.form.get('title', '') }}">
+                            <div class="form-text text-muted">Max 50 characters</div>
                         </div>
                         
                         <div class="mb-4">
-                            <label for="description" class="form-label">
-                                <i class="fas fa-align-left"></i> Description
+                            <label for="description" class="form-label text-custom-primary">
+                                <i class="fas fa-align-left me-1"></i> Description
                             </label>
-                            <textarea class="form-control" 
-                                      id="description" 
-                                      name="description" 
-                                      rows="3" 
-                                      maxlength="150" 
-                                      required 
-                                      placeholder="Describe what you plan to discuss about your PDFs...">{{ request.form.get('description', '') }}</textarea>
-                            <div class="form-text">Brief description of your chat purpose (max 150 characters)</div>
+                            <textarea class="form-control shadow-sm" 
+                                    id="description" 
+                                    name="description" 
+                                    rows="3" 
+                                    maxlength="150" 
+                                    required 
+                                    placeholder="Describe what you plan to discuss about your PDFs...">{{ request.form.get('description', '') }}</textarea>
+                            <div class="form-text text-muted">Max 150 characters</div>
                         </div>
                         
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <a href="{{ url_for('dashboard.dashboard_view') }}" 
-                               class="btn btn-outline-secondary me-md-2">
-                                <i class="fas fa-arrow-left"></i> Cancel
+                            class="btn btn-outline-primary me-md-2">
+                                <i class="fas fa-arrow-left me-1"></i> Cancel
                             </a>
                             <button type="submit" class="btn btn-success">
-                                <i class="fas fa-plus"></i> Create Chat
+                                <i class="fas fa-plus me-1"></i> Create Chat
                             </button>
                         </div>
                     </form>
+
                 </div>
             </div>
             

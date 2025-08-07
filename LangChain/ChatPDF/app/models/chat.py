@@ -11,6 +11,7 @@ class ChatSession(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
     
+    
     # Relationships
     user = db.relationship("User", back_populates="chats")
     pdfs = db.relationship("PDF", back_populates="chat", cascade="all, delete-orphan")

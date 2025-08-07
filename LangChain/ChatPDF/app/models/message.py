@@ -8,7 +8,8 @@ class Message(db.Model):
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     chat_id = db.Column(db.Integer, db.ForeignKey("chat_sessions.id"), nullable=False)
-
+    sources = db.Column(db.JSON)  # Store source information
+    context_chunks_used = db.Column(db.Integer, default=0)
     # Relationships
     chat = db.relationship("ChatSession", back_populates="messages")
 

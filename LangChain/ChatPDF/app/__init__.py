@@ -7,6 +7,11 @@ from .extensions import db
 import dotenv
 from config.config import DevelopmentConfig
 
+from markdown import markdown
+import re
+from markupsafe import Markup
+
+
 dotenv.load_dotenv()
 # import blueprints and register routes
   
@@ -47,7 +52,17 @@ def create_app(config_class=DevelopmentConfig):
     # --- Config ---
     app.config.from_object(config_class)
 
+    
+    @app.template_filter('markdownify')
+    def markdownify(text):
+        return Markup(markdown(text))
 
+    @app.template_filter('format_message')
+    def format_message(content):
+        # Convert **bold** to <strong> and preserve line breaks
+        formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', content)
+        formatted = formatted.replace('\n', '<br>')
+        return Markup(formatted)
     
 
     # --- Extensions ---

@@ -4,6 +4,9 @@ from app.models.user import User
 from app.models.message import Message
 from app.extensions import db
 from app.utils.utils import login_required
+from app.utils.langchain_pipeline import RAGService
+from app.models.pdf import PDF
+import re
 
 bp = Blueprint('chat_controller', __name__, url_prefix='/chat')
 
@@ -29,7 +32,7 @@ def view_chat(username, chat_id):
     
     return render_template('chat/chat_session.html', chat=chat, messages=messages, user=user)
 
-@bp.route('/<username>/<int:chat_id>/send_message', methods=['POST'])
+@bp.route('/<username>/<int:chat_id>', methods=['POST'])
 @login_required
 def send_message(username, chat_id):
     """Send a message in the chat"""
@@ -57,19 +60,42 @@ def send_message(username, chat_id):
         chat_id=chat_id
     )
     db.session.add(user_message)
+    db.session.commit()  # Commit user message first
     
     # TODO: Process the message with AI/LangChain and generate response
     # For now, we'll create a simple echo response
-    ai_response = f"I received your message: '{user_input}'. AI processing will be implemented here."
+    # 🔥 RAG PROCESSING
+    try:
+        # Check if chat has any PDFs
+        pdf_count = PDF.query.filter_by(chat_id=chat_id).count()
+        print(f"PDF Count for chat {chat_id}: {pdf_count}")
+        
+        if pdf_count == 0:
+            ai_response = "Please upload a PDF file first so I can answer questions about it."
+        else:
+            # Use RAG to generate response
+            rag_service = RAGService()
+            rag_result = rag_service.generate_response_with_sources(chat_id, user_input)
+            ai_response = rag_result['response']
+            
+            # Log successful RAG processing
+            print(f"RAG used {rag_result['context_used']} chunks for response")
     
+    except Exception as e:
+        print(f"RAG Error: {e}")
+        ai_response = "I'm having trouble processing your question right now. Please try again."
+    # process the ai_response. Exclude text between <think> and </think>
+    remove_tag_contents = lambda text: re.sub(r'<(think|/think)>.*?</\1>', '', text, flags=re.DOTALL)
+    ai_response = remove_tag_contents(ai_response).strip()
+    ai_response = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', ai_response)
+
     # Save AI response
     ai_message = Message(
         role='assistant',
         content=ai_response,
         chat_id=chat_id
     )
-    db.session.add(ai_message)
-    
+    db.session.add(ai_message)    
     db.session.commit()
     
     return redirect(url_for('chat_controller.view_chat', username=username, chat_id=chat_id))
