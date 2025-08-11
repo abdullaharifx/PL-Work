@@ -293,7 +293,7 @@ class RAGService:
             # 4. Format response with sources
             if sources:
                 source_text = "\n\n**Sources:**\n" + "\n".join([
-                    f"📄 Page {source['page']}" for source in sources[:3]
+                    f"📄 Page {source['page']}" for source in sources[:2]
                 ])
                 formatted_response = ai_response + source_text
             else:
