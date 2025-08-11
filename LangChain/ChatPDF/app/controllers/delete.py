@@ -38,7 +38,7 @@ def delete_view(chat_id):
         
         # 🗑️ CLEANUP VECTOR STORE COLLECTION
         try:
-            from app.utils.langchain_pipeline import get_chroma_client
+            from app.utils.vector_store_service import get_chroma_client
             client = get_chroma_client()
             collection_name = f"chat_{chat_id}"
             try:

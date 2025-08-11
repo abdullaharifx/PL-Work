@@ -4,7 +4,7 @@ from app.models.user import User
 from app.models.message import Message
 from app.extensions import db
 from app.utils.utils import login_required
-from app.utils.langchain_pipeline import RAGService
+from app.utils.rag_service import RAGService
 from app.models.pdf import PDF
 import re
 
@@ -88,6 +88,7 @@ def send_message(username, chat_id):
     remove_tag_contents = lambda text: re.sub(r'<(think|/think)>.*?</\1>', '', text, flags=re.DOTALL)
     ai_response = remove_tag_contents(ai_response).strip()
     ai_response = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', ai_response)
+    print("🧠 AI Response generated:", ai_response)
 
     # Save AI response
     ai_message = Message(

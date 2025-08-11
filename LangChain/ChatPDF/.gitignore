@@ -33,6 +33,12 @@ venv.bak/
 .sqlite
 .sqlite3
 
+data/
+.pdf
+.txt
+.log
+.csv
+
 
 # Flask
 instance/

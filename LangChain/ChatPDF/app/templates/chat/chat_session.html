@@ -32,7 +32,7 @@
             <div class="border-bottom p-3 bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fas fa-robot"></i> {{ chat.title }} </h5>
                 <div class="d-flex gap-2">
-                    <a href="{{ url_for('chat.edit_view', chat_id=chat.id) }}" class="btn btn-sm btn-outline-secondary">
+                    <a href="{{ url_for('edit.edit_view', chat_id=chat.id) }}" class="btn btn-sm btn-outline-secondary">
                         <i class="fas fa-edit"></i> Edit Chat
                     </a>
                     <!-- Upload PDF Button -->

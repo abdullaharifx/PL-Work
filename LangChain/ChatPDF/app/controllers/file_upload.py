@@ -13,7 +13,7 @@ from app.utils.pdf_processing import process_new_pdf
 
 bp = Blueprint('file_upload', __name__, url_prefix='/upload')
 
-UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), './LangChain/ChatPDF/app/data/')
+UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'app/data')
 ALLOWED_EXTENSIONS = {'pdf', 'txt', 'docx'}
 
 def allowed_file(filename):

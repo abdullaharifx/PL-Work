@@ -2,7 +2,6 @@ import os
 from flask import Flask, app, render_template
 from flask_sqlalchemy import SQLAlchemy
 
-from .controllers import edit, edit
 from .extensions import db
 import dotenv
 from config.config import DevelopmentConfig
@@ -23,6 +22,7 @@ def register_routes(app):
         register,
         profile,
         dashboard,
+        edit,
         create,
         delete,
         chat_controller,
