@@ -129,12 +129,15 @@ def process_new_pdf(pdf_id: int, chat_id: int) -> bool:
             # Update PDF record with processing status
             pdf.processed = True
             pdf.chunks_count = len(chunks)
+            pdf.pages_count = len(processor.extract_text_from_pdf(filepath))
             db.session.commit()
             
             # Initialize vector store for this chat
             try:
                 from app.utils.langchain_pipeline import RAGService
                 rag_service = RAGService()
+                rag_service._force_rebuild_vector_store(chat_id)
+                print(f"✅ Vector store completely rebuilt for chat {chat_id}")
                 rag_service._ensure_vector_store_ready(chat_id)
                 print(f"✅ Vector store updated for chat {chat_id}")
             except Exception as e:

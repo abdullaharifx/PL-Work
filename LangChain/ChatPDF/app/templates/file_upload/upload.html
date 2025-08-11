@@ -3,13 +3,24 @@
 {% block title %}Upload PDFs{% endblock %}
 
 {% block content %}
-    <h1 class="mb-4">Upload PDFs to Chat</h1>
-    <form method="POST" enctype="multipart/form-data">
-        <input type="hidden" name="chat_id" value="{{ request.args.get('chat_id') or '' }}" />
+    <h1 class="mb-4">Upload PDFs</h1>
+
+    <form action="{{ url_for('file_upload.upload_file') }}" method="POST" enctype="multipart/form-data">
+        <!-- use the chat_id passed from the view (not request.args) -->
+        <input type="hidden" name="chat_id" value="{{ chat_id }}" />
+
         <div class="mb-3">
-            <label for="pdf_files" class="form-label">Choose PDF files</label>
-            <input type="file" class="form-control" id="pdf_files" name="pdf_files" accept="application/pdf" multiple required />
+            <label for="pdf_file" class="form-label">Choose files</label>
+            <!-- NAME changed to 'pdf_file' (matches Flask) and 'multiple' kept -->
+            <input type="file"
+                   class="form-control"
+                   id="pdf_file"
+                   name="pdf_file"
+                   accept=".pdf,.docx,.txt"
+                   multiple
+                   required />
         </div>
+
         <button type="submit" class="btn btn-primary">Upload</button>
     </form>
 {% endblock %}

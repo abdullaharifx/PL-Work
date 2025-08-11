@@ -3,7 +3,6 @@ import chromadb
 from typing import List, Dict
 from sentence_transformers import SentenceTransformer
 
-# Import your models
 from app.models.document_chunk import DocumentChunk
 from app.models.pdf import PDF
 from app.extensions import db
@@ -86,11 +85,63 @@ class VectorStore:
             print(f"❌ Vector store search error: {e}")
             return []
     
-    def add_documents(self, chat_id: int, documents: List[Dict]):
-        """Add documents to ChromaDB"""
-        try:
-            collection = self.get_or_create_collection(chat_id)
+    # def add_documents(self, chat_id: int, documents: List[Dict]):
+    #     """Add documents to ChromaDB"""
+    #     try:
+    #         collection = self.get_or_create_collection(chat_id)
             
+    #         texts = [doc['content'] for doc in documents]
+    #         metadatas = [doc['metadata'] for doc in documents]
+    #         ids = [f"doc_{i}_{doc['metadata'].get('chunk_id', i)}" for i, doc in enumerate(documents)]
+            
+    #         # Generate embeddings
+    #         embeddings = self.embedding_model.encode(texts).tolist()
+            
+    #         # Clear existing data and add new
+    #         try:
+    #             collection.delete()
+    #             collection = self.client.create_collection(self.get_collection_name(chat_id))
+    #         except:
+    #             pass
+            
+    #         # Add to ChromaDB
+    #         collection.add(
+    #             documents=texts,
+    #             embeddings=embeddings,
+    #             metadatas=metadatas,
+    #             ids=ids
+    #         )
+    #         print(f"✅ Added {len(documents)} documents to vector store")
+            
+    #     except Exception as e:
+    #         print(f"❌ Error adding documents to vector store: {e}")
+    #         raise
+    # File: app/utils/langchain_pipeline.py
+# Update the VectorStore.add_documents method
+
+    def add_documents(self, chat_id: int, documents: List[Dict]):
+        """Add documents to ChromaDB - replaces existing collection"""
+        try:
+            collection_name = self.get_collection_name(chat_id)
+            
+            # 🔥 ALWAYS DELETE EXISTING COLLECTION AND CREATE FRESH
+            try:
+                # Try to delete existing collection
+                existing_collection = self.client.get_collection(collection_name)
+                self.client.delete_collection(collection_name)
+                print(f"🗑️ Deleted existing collection: {collection_name}")
+            except Exception:
+                print(f"ℹ️ No existing collection to delete: {collection_name}")
+            
+            # Create fresh collection
+            collection = self.client.create_collection(collection_name)
+            print(f"🆕 Created fresh collection: {collection_name}")
+            
+            if not documents:
+                print("⚠️ No documents to add")
+                return
+            
+            # Prepare data for ChromaDB
             texts = [doc['content'] for doc in documents]
             metadatas = [doc['metadata'] for doc in documents]
             ids = [f"doc_{i}_{doc['metadata'].get('chunk_id', i)}" for i, doc in enumerate(documents)]
@@ -98,21 +149,19 @@ class VectorStore:
             # Generate embeddings
             embeddings = self.embedding_model.encode(texts).tolist()
             
-            # Clear existing data and add new
-            try:
-                collection.delete()
-                collection = self.client.create_collection(self.get_collection_name(chat_id))
-            except:
-                pass
-            
-            # Add to ChromaDB
+            # Add ALL documents to fresh collection
             collection.add(
                 documents=texts,
                 embeddings=embeddings,
                 metadatas=metadatas,
                 ids=ids
             )
-            print(f"✅ Added {len(documents)} documents to vector store")
+            
+            print(f"✅ Added {len(documents)} documents to fresh vector store collection")
+            
+            # Show which PDFs contributed
+            pdf_ids = set(doc['metadata'].get('pdf_id') for doc in documents)
+            print(f"📄 Documents from {len(pdf_ids)} PDFs: {sorted(pdf_ids)}")
             
         except Exception as e:
             print(f"❌ Error adding documents to vector store: {e}")
@@ -151,8 +200,8 @@ class LLMService:
                         You are a helpful assistant answering questions based on the provided PDF document excerpts.
 
                         Instructions:
-                        1. Use ONLY the information in the 'Context' to answer the 'Question'. 
-                        2. If the answer is not present or cannot be inferred from the context, explicitly say: "The answer is not available in the provided documents."
+                        1. Use the information in the 'Context' to write 90% of the answer to the 'Question'. 10% of the answer should come from overall knowledge.  
+                        2. If the answer is not present or cannot be inferred from the context at all, explicitly say: "The answer is not available in the provided documents."
                         3. First, identify the 'Theme' of the conversation from the provided theme description.
                         4. Respond in a tone, style, and format consistent with the identified theme.
                         5. If the user requests a specific format in the theme, strictly follow it.
@@ -203,7 +252,49 @@ class RAGService:
             print(f"❌ LLM initialization failed: {e}")
             # Fallback to simple responses
             self.llm = None
-    
+    # File: app/utils/langchain_pipeline.py
+# Add this method to the RAGService class
+
+    def _force_rebuild_vector_store(self, chat_id: int):
+        """
+        Force complete rebuild of vector store for a chat from database
+        This ensures all PDFs in the chat contribute to answers
+        """
+        try:
+            print(f"🔄 Force rebuilding vector store for chat {chat_id}")
+            
+            # Get ALL document chunks for this chat from database
+            documents = self._get_documents_from_db(chat_id)
+            
+            if not documents:
+                print(f"❌ No documents found in database for chat {chat_id}")
+                return
+            
+            print(f"📚 Found {len(documents)} total chunks from ALL PDFs in chat {chat_id}")
+            
+            # Force rebuild vector store with ALL documents
+            self.vector_store.add_documents(chat_id, documents)
+            
+            print(f"✅ Vector store completely rebuilt with {len(documents)} chunks")
+            
+            # Verify the rebuild worked
+            test_results = self.vector_store.search_similar_chunks(chat_id, "test", k=1)
+            if test_results:
+                print(f"✅ Vector store verification successful - {len(test_results)} chunks available")
+            else:
+                print(f"❌ Vector store verification failed - no chunks found")
+                
+        except Exception as e:
+            print(f"❌ Error force rebuilding vector store: {e}")
+            import traceback
+            traceback.print_exc()
+
+
+
+
+
+
+
     def _get_documents_from_db(self, chat_id: int) -> List[Dict]:
         """Get document chunks from database"""
         try:
@@ -230,25 +321,57 @@ class RAGService:
             print(f"❌ Database error: {e}")
             return []
     
-    def _ensure_vector_store_ready(self, chat_id: int):
-        """Ensure vector store has documents for this chat"""
-        try:
-            # Test if vector store has data
-            test_results = self.vector_store.search_similar_chunks(chat_id, "test", k=1)
+    # def _ensure_vector_store_ready(self, chat_id: int):
+    #     """Ensure vector store has documents for this chat"""
+    #     try:
+    #         # Test if vector store has data
+    #         test_results = self.vector_store.search_similar_chunks(chat_id, "test", k=1)
             
-            if not test_results:
-                print("🔄 Vector store empty, rebuilding from database...")
-                documents = self._get_documents_from_db(chat_id)
+    #         if not test_results:
+    #             print("🔄 Vector store empty, rebuilding from database...")
+    #             documents = self._get_documents_from_db(chat_id)
                 
-                if documents:
-                    self.vector_store.add_documents(chat_id, documents)
-                    print(f"✅ Rebuilt vector store with {len(documents)} documents")
-                else:
-                    print("❌ No documents found in database")
+    #             if documents:
+    #                 self.vector_store.add_documents(chat_id, documents)
+    #                 print(f"✅ Rebuilt vector store with {len(documents)} documents")
+    #             else:
+    #                 print("❌ No documents found in database")
                     
+    #     except Exception as e:
+    #         print(f"❌ Error ensuring vector store ready: {e}")
+    # File: app/utils/langchain_pipeline.py
+# Update _ensure_vector_store_ready method
+
+    def _ensure_vector_store_ready(self, chat_id: int):
+        """Ensure vector store has ALL documents for this chat"""
+        try:
+            # Always check if database has more recent data
+            db_documents = self._get_documents_from_db(chat_id)
+            db_count = len(db_documents)
+            
+            # Check vector store count
+            try:
+                test_results = self.vector_store.search_similar_chunks(chat_id, "test", k=1000)
+                vector_count = len(test_results)
+            except:
+                vector_count = 0
+            
+            print(f"📊 Documents in database: {db_count}, in vector store: {vector_count}")
+            
+            # Rebuild if counts don't match or vector store is empty
+            if vector_count != db_count or vector_count == 0:
+                print("🔄 Vector store out of sync, rebuilding from database...")
+                
+                if db_documents:
+                    self.vector_store.add_documents(chat_id, db_documents)
+                    print(f"✅ Rebuilt vector store with {len(db_documents)} documents")
+                else:
+                    print("❌ No documents found in database to rebuild from")
+            else:
+                print("✅ Vector store is up to date")
+                
         except Exception as e:
             print(f"❌ Error ensuring vector store ready: {e}")
-    
     def generate_response_with_sources(self, chat_id: int, user_query: str) -> Dict:
         """Generate response with source attribution"""
         try:
@@ -293,7 +416,7 @@ class RAGService:
             # 4. Format response with sources
             if sources:
                 source_text = "\n\n**Sources:**\n" + "\n".join([
-                    f"📄 Page {source['page']}" for source in sources[:2]
+                    f"📄 Page {source['page']}" for source in sources[:3]
                 ])
                 formatted_response = ai_response + source_text
             else:
