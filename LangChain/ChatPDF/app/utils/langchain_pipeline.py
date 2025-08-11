@@ -222,7 +222,7 @@ class LLMService:
                 response = self.client.chat.completions.create(
                     model="qwen/qwen3-32b",  # Use a valid Groq model
                     messages=[{"role": "user", "content": prompt}],
-                    temperature=0.2,
+                    temperature=1.2,
                     max_tokens=1024
                 )
                 return response.choices[0].message.content
