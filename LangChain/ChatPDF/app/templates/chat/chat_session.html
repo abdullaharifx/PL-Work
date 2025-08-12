@@ -3,6 +3,9 @@
 {% block title %}{{ chat.title }} - ChatPDF App{% endblock %}
 
 {% block content %}
+<!-- Include Voice Module -->
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
 <div class="container-fluid px-0" style="height: 90vh;">
     <div class="d-flex h-100" style="width: 100%;">
 
@@ -62,8 +65,24 @@
                     {% else %}
                     <div class="d-flex justify-content-start">
                         <div class="p-2 rounded border" style="background-color: var(--off-white); color: var(--dark-teal); max-width: 70%;">
-                            <div>{{ message.content | markdownify }}</div>
-                            <div class="small text-start text-muted">{{ message.timestamp.strftime('%H:%M') }}</div>
+                            <div>{{ message.content | markdownify | safe }}</div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <div class="small text-start text-muted">{{ message.timestamp.strftime('%H:%M') }}</div>
+                                <div class="voice-controls">
+                                    <button class="btn btn-sm btn-outline-secondary me-1 speak-button" 
+                                            data-text="{{ message.content | striptags | e }}" 
+                                            title="Listen to message"
+                                            onclick="speakMessage(this)">
+                                        <i class="fas fa-volume-up"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger stop-speech-btn" 
+                                            style="display: none;" 
+                                            title="Stop speaking"
+                                            onclick="stopSpeaking()">
+                                        <i class="fas fa-stop"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     {% endif %}
@@ -85,12 +104,26 @@
                       hx-target="#chat-window" 
                       hx-swap="beforeend">
                     <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Ask something about your PDFs..." name="user_input" required autocomplete="off">
+                        <input type="text" class="form-control" placeholder="Ask something about your PDFs..." name="user_input" id="chatInput" required autocomplete="off">
+                        <button class="btn btn-outline-secondary" type="button" id="mic-button" title="Voice Input (Ctrl+M)" onclick="startVoiceInput()">
+                            <i class="fas fa-microphone"></i>
+                        </button>
                         <button class="btn btn-success" type="submit">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
                 </form>
+                <!-- Voice transcription feedback -->
+                <div id="voiceTranscription" class="mt-2 p-2 rounded bg-light border" style="display: none;">
+                    <small class="text-muted d-flex align-items-center">
+                        <i class="fas fa-microphone text-danger me-2"></i>
+                        <span id="transcriptionText">Listening...</span>
+                    </small>
+                </div>
+                <!-- Keyboard shortcuts hint -->
+                <div class="keyboard-hint text-center mt-1">
+                    <small>Press <kbd>Ctrl+M</kbd> for voice input • <kbd>Esc</kbd> to stop speaking</small>
+                </div>
             </div>
         </div>
     </div>
@@ -133,5 +166,135 @@ function scrollChatBottom() {
 }
 document.addEventListener('DOMContentLoaded', scrollChatBottom);
 document.body.addEventListener('htmx:afterSwap', scrollChatBottom);
+
+// ✅ CLICKABLE SOURCES FUNCTIONALITY
+function navigateToPage(pdfId, pageNumber) {
+    console.log('📖 Navigating to PDF ' + pdfId + ', page ' + pageNumber);
+    
+    // Get current URL components
+    const pathParts = window.location.pathname.split('/');
+    const username = pathParts[2]; // /chat/username/chatId
+    const chatId = pathParts[3];
+    
+    // Build PDF file URL
+    const pdfFileUrl = '/chat/' + username + '/' + chatId + '/pdf/' + pdfId + '/file';
+    
+    // Find the PDF viewer iframe
+    const pdfViewer = document.querySelector('iframe[title^="PDF Preview"]');
+    if (pdfViewer) {
+        // Update iframe source to show specific page
+        pdfViewer.src = pdfFileUrl + '#page=' + pageNumber;
+        
+        // Highlight the PDF viewer temporarily
+        const container = pdfViewer.parentElement;
+        container.style.border = '3px solid var(--medium-teal)';
+        container.style.borderRadius = '8px';
+        
+        // Remove highlight after 2 seconds
+        setTimeout(function() {
+            container.style.border = '';
+            container.style.borderRadius = '';
+        }, 2000);
+        
+        // Show notification
+        showNotification('📄 Navigated to page ' + pageNumber, 'success');
+        
+        // Get and show page info
+        getPageInfo(pdfId, pageNumber, username, chatId);
+    } else {
+        showNotification('❌ PDF viewer not available', 'error');
+    }
+}
+
+// Get PDF page information
+function getPageInfo(pdfId, pageNumber, username, chatId) {
+    const pageInfoUrl = '/chat/' + username + '/' + chatId + '/pdf/' + pdfId + '/page/' + pageNumber;
+    
+    fetch(pageInfoUrl)
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.error) {
+                console.error('Page info error:', data.error);
+                return;
+            }
+            
+            // Show page information overlay
+            showPageInfo(data.filename, pageNumber, data.total_pages);
+        })
+        .catch(function(error) {
+            console.error('Error getting page info:', error);
+        });
+}
+
+// Show page information overlay
+function showPageInfo(filename, currentPage, totalPages) {
+    const existingOverlay = document.getElementById('pdf-page-overlay');
+    if (existingOverlay) {
+        existingOverlay.remove();
+    }
+    
+    const overlay = document.createElement('div');
+    overlay.id = 'pdf-page-overlay';
+    overlay.className = 'position-absolute top-0 end-0 m-2 p-2 bg-dark text-white rounded';
+    overlay.style.zIndex = '1000';
+    overlay.innerHTML = '<small><strong>' + filename + '</strong><br>Page ' + currentPage + ' of ' + totalPages + '</small>';
+    
+    const pdfContainer = document.getElementById('pdf-viewer-container');
+    pdfContainer.style.position = 'relative';
+    pdfContainer.appendChild(overlay);
+    
+    // Auto-hide after 3 seconds
+    setTimeout(function() {
+        if (overlay.parentElement) {
+            overlay.remove();
+        }
+    }, 3000);
+}
+
+// Show notification messages
+function showNotification(message, type) {
+    if (!type) type = 'info';
+    
+    const existingToast = document.getElementById('source-toast');
+    if (existingToast) {
+        existingToast.remove();
+    }
+    
+    const colors = {
+        success: '#198754',
+        error: '#dc3545',
+        info: '#0d6efd'
+    };
+    
+    const toast = document.createElement('div');
+    toast.id = 'source-toast';
+    toast.className = 'position-fixed top-0 end-0 m-3 p-3 rounded text-white';
+    toast.style.backgroundColor = colors[type];
+    toast.style.zIndex = '9999';
+    toast.innerHTML = '<div class="d-flex align-items-center"><span>' + message + '</span><button type="button" class="btn-close btn-close-white ms-2" onclick="this.parentElement.parentElement.remove()"></button></div>';
+    
+    document.body.appendChild(toast);
+    
+    // Auto-remove after 4 seconds
+    setTimeout(function() {
+        if (toast.parentElement) {
+            toast.remove();
+        }
+    }, 4000);
+}
+
+// Initialize Voice Module
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof VoiceModule !== 'undefined') {
+        const voiceModule = new VoiceModule();
+        
+        // Initialize voice functionality
+        voiceModule.init();
+        
+        console.log('✅ Voice Module initialized and ready!');
+    } else {
+        console.warn('VoiceModule not found. Voice features will not be available.');
+    }
+});
 </script>
 {% endblock %}

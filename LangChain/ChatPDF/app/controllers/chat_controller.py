@@ -128,3 +128,71 @@ def get_messages_api(username, chat_id):
         })
     
     return jsonify({'messages': messages_data})
+
+@bp.route('/<username>/<int:chat_id>/pdf/<int:pdf_id>/page/<int:page>')
+@login_required
+def view_pdf_page(username, chat_id, pdf_id, page):
+    """Serve a specific page of a PDF for navigation from sources"""
+    try:
+        # Get the user by username
+        user = User.query.filter_by(username=username).first_or_404()
+        
+        # Verify user owns the chat
+        chat = ChatSession.query.filter_by(id=chat_id, user_id=user.id).first()
+        if not chat or chat.user_id != session['user_id']:
+            return jsonify({'error': 'Chat not found'}), 404
+        
+        # Verify PDF belongs to this chat
+        pdf = PDF.query.filter_by(id=pdf_id, chat_id=chat_id).first()
+        if not pdf:
+            return jsonify({'error': 'PDF not found'}), 404
+        
+        # Return PDF page information for frontend to handle
+        return jsonify({
+            'pdf_id': pdf_id,
+            'filename': pdf.filename,
+            'page': page,
+            'file_path': pdf.file_path,
+            'total_pages': pdf.pages_count or 1,
+            'upload_date': pdf.upload_date.isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error viewing PDF page: {e}")
+        return jsonify({'error': 'Failed to load PDF page'}), 500
+
+@bp.route('/<username>/<int:chat_id>/pdf/<int:pdf_id>/file')
+@login_required  
+def serve_pdf_file(username, chat_id, pdf_id):
+    """Serve the actual PDF file for viewing"""
+    try:
+        # Get the user by username
+        user = User.query.filter_by(username=username).first_or_404()
+        
+        # Verify user owns the chat
+        chat = ChatSession.query.filter_by(id=chat_id, user_id=user.id).first()
+        if not chat or chat.user_id != session['user_id']:
+            return jsonify({'error': 'Chat not found'}), 404
+            
+        # Verify PDF belongs to this chat
+        pdf = PDF.query.filter_by(id=pdf_id, chat_id=chat_id).first()
+        if not pdf:
+            return jsonify({'error': 'PDF not found'}), 404
+            
+        import os
+        from flask import send_file
+        
+        # Check if file exists
+        if not os.path.exists(pdf.file_path):
+            return jsonify({'error': 'PDF file not found on disk'}), 404
+            
+        return send_file(
+            pdf.file_path,
+            as_attachment=False,
+            download_name=pdf.filename,
+            mimetype='application/pdf'
+        )
+        
+    except Exception as e:
+        print(f"❌ Error serving PDF file: {e}")
+        return jsonify({'error': 'Failed to serve PDF file'}), 500

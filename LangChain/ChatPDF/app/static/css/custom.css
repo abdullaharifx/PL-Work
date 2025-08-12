@@ -323,3 +323,117 @@ a:hover {
 .modal-footer {
     border-top-color: var(--cream);
 }
+
+/* Voice Interface Styling */
+#mic-button {
+    transition: all 0.3s ease;
+    border-color: var(--medium-teal);
+    color: var(--medium-teal);
+}
+
+#mic-button:hover {
+    background-color: var(--medium-teal);
+    border-color: var(--medium-teal);
+    color: white;
+}
+
+#mic-button.recording-active, #mic-button.listening {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+#voiceTranscription {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-color: #dc3545;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.voice-controls .btn {
+    transition: all 0.2s ease;
+    margin-left: 4px;
+}
+
+.speak-button {
+    border-color: var(--medium-teal);
+    color: var(--medium-teal);
+}
+
+.speak-button:hover {
+    background-color: var(--medium-teal);
+    border-color: var(--medium-teal);
+    color: white;
+}
+
+.speak-button.speaking {
+    background-color: var(--golden-brown);
+    border-color: var(--golden-brown);
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.stop-speech-btn {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.stop-speech-btn:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.voice-controls .btn.speaking {
+    background-color: var(--golden-brown);
+    border-color: var(--golden-brown);
+    color: white;
+}
+
+/* Voice feedback indicators */
+.voice-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #dc3545;
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+/* Accessibility improvements for voice features */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Keyboard shortcut hints */
+.keyboard-hint {
+    font-size: 0.75rem;
+    color: var(--medium-teal);
+    opacity: 0.7;
+    margin-top: 2px;
+}

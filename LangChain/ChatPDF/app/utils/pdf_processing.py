@@ -6,6 +6,7 @@ from langchain.schema import Document
 from app.models.document_chunk import DocumentChunk
 from app.models.pdf import PDF
 from app.extensions import db
+from app.utils.rag_service import RAGService
 
 class PDFProcessor:
     def __init__(self):
@@ -134,7 +135,7 @@ def process_new_pdf(pdf_id: int, chat_id: int) -> bool:
             
             # Initialize vector store for this chat
             try:
-                from app.utils.langchain_pipeline import RAGService
+                
                 rag_service = RAGService()
                 rag_service._force_rebuild_vector_store(chat_id)
                 print(f"✅ Vector store completely rebuilt for chat {chat_id}")

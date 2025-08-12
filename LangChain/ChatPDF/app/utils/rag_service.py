@@ -1,4 +1,5 @@
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Generator
+import time
 from app.models.document_chunk import DocumentChunk
 from app.models.pdf import PDF
 from app.models.chat import ChatSession
@@ -147,7 +148,7 @@ class RAGService:
     # File: app/utils/langchain_pipeline.py
 # Update _ensure_vector_store_ready method
     def generate_response_with_sources(self, chat_id: int, user_query: str) -> Dict:
-        """Generate response with source attribution and conversation context"""
+        """Generate response with enhanced source information for clickable navigation"""
         try:
             print(f"🔄 Processing query: {user_query[:50]}...")
             
@@ -171,19 +172,28 @@ class RAGService:
                     'context_used': 0
                 }
             
-            # 2. Extract context and source info
+            # ✅ 2. Extract context and enhanced source info for clickable navigation
             context_parts = []
             sources = []
             
             for chunk in relevant_chunks:
                 context_parts.append(chunk['content'])
                 metadata = chunk.get('metadata', {})
-                if metadata.get('page'):
-                    sources.append({
-                        'page': metadata['page'],
-                        'pdf_id': chunk['pdf_id'],
-                        'similarity_score': chunk.get('similarity_score', 0)
-                    })
+                
+                # ✅ Get PDF information for better source display
+                pdf_id = chunk.get('pdf_id') or metadata.get('pdf_id')
+                if pdf_id:
+                    pdf = PDF.query.get(pdf_id)
+                    if pdf:
+                        source_info = {
+                            'pdf_id': pdf_id,
+                            'pdf_filename': pdf.filename,
+                            'page_number': metadata.get('page', 1),
+                            'similarity_score': chunk.get('similarity_score', 0),
+                            'chunk_id': metadata.get('chunk_id', 0),
+                            'chunk_content_preview': chunk['content'][:150] + "..." if len(chunk['content']) > 150 else chunk['content']
+                        }
+                        sources.append(source_info)
             
             # 3. Generate AI response with theme AND chat history
             context = "\n\n".join(context_parts)
@@ -193,18 +203,19 @@ class RAGService:
             else:
                 ai_response = "AI service is currently unavailable. Here's the relevant context I found:\n\n" + context[:500] + "..."
             
-            # 4. Format response with sources
+            # ✅ 4. Format response with clickable sources
+            formatted_response = ai_response
             if sources:
-                source_text = "\n\n**Sources:**\n" + "\n".join([
-                    f"📄 Page {source['page']}" for source in sources[:3]
-                ])
+                source_text = "\n\n**📚 Sources:**\n"
+                for i, source in enumerate(sources[:1], 1):
+                    # Create clickable HTML link instead of markdown
+                    source_link = f'<a href="javascript:navigateToPage({source["pdf_id"]}, {source["page_number"]})" class="text-decoration-none text-primary"><i class="fas fa-link"></i> {source["pdf_filename"]} - Page {source["page_number"]}</a>'
+                    source_text += f"• {source_link}\n"
                 formatted_response = ai_response + source_text
-            else:
-                formatted_response = ai_response
             
             return {
                 'response': formatted_response,
-                'sources': sources,
+                'sources': sources[:3],  # Limit to top 3 sources
                 'context_used': len(context_parts)
             }
             
@@ -219,107 +230,115 @@ class RAGService:
                 'context_used': 0
             }
 
-    # def _ensure_vector_store_ready(self, chat_id: int):
-    #     """Ensure vector store has ALL documents for this chat"""
-    #     try:
-    #         # Always check if database has more recent data
-    #         db_documents = self._get_documents_from_db(chat_id)
-    #         db_count = len(db_documents)
+    def generate_streaming_response(self, chat_id: int, user_query: str) -> Generator[Dict, None, None]:
+        """Generate streaming response with enhanced clickable sources"""
+        try:
+            print(f"🔄 Starting streaming for query: {user_query[:50]}...")
             
-    #         # Check vector store count
-    #         try:
-    #             test_results = self.vector_store.search_similar_chunks(chat_id, "test", k=1000)
-    #             vector_count = len(test_results)
-    #         except:
-    #             vector_count = 0
+            # Get chat description as theme
+            theme = ChatSession.query.filter_by(id=chat_id).first().description if chat_id else "default theme"
+            print(f"🎭 Using theme: {theme}")
             
-    #         print(f"📊 Documents in database: {db_count}, in vector store: {vector_count}")
+            # Get chat history for context
+            chat_history = self._get_chat_history(chat_id, limit=3)
             
-    #         # Rebuild if counts don't match or vector store is empty
-    #         if vector_count != db_count or vector_count == 0:
-    #             print("🔄 Vector store out of sync, rebuilding from database...")
+            # Ensure vector store is ready
+            self._ensure_vector_store_ready(chat_id)
+            
+            # 1. Retrieve relevant chunks
+            relevant_chunks = self.vector_store.search_similar_chunks(chat_id, user_query, k=5)
+            
+            if not relevant_chunks:
+                yield {
+                    'type': 'content',
+                    'data': "I couldn't find any relevant information in the uploaded documents for your question.",
+                    'final': True,
+                    'sources': []
+                }
+                return
+            
+            # 2. Prepare enhanced source information
+            context_parts = []
+            sources = []
+            
+            for chunk in relevant_chunks:
+                context_parts.append(chunk['content'])
+                metadata = chunk.get('metadata', {})
                 
-    #             if db_documents:
-    #                 self.vector_store.add_documents(chat_id, db_documents)
-    #                 print(f"✅ Rebuilt vector store with {len(db_documents)} documents")
-    #             else:
-    #                 print("❌ No documents found in database to rebuild from")
-    #         else:
-    #             print("✅ Vector store is up to date")
+                # Get PDF information for clickable sources
+                pdf_id = chunk.get('pdf_id') or metadata.get('pdf_id')
+                if pdf_id:
+                    pdf = PDF.query.get(pdf_id)
+                    if pdf:
+                        source_info = {
+                            'pdf_id': pdf_id,
+                            'pdf_filename': pdf.filename,
+                            'page_number': metadata.get('page', 1),
+                            'similarity_score': chunk.get('similarity_score', 0),
+                            'chunk_id': metadata.get('chunk_id', 0),
+                            'chunk_content_preview': chunk['content'][:150] + "..." if len(chunk['content']) > 150 else chunk['content']
+                        }
+                        sources.append(source_info)
+            
+            # 3. Generate streaming AI response
+            context = "\n\n".join(context_parts)
+            
+            if self.llm:
+                # Stream the AI response
+                response_parts = []
+                for chunk in self.llm.generate_streaming(context, user_query, theme, chat_history):
+                    response_parts.append(chunk)
+                    yield {
+                        'type': 'content',
+                        'data': chunk,
+                        'final': False
+                    }
+                    time.sleep(0.01)  # Small delay for better UX
                 
-    #     except Exception as e:
-    #         print(f"❌ Error ensuring vector store ready: {e}")
+                # Send enhanced sources with clickable links
+                if sources:
+                    source_data = []
+                    for source in sources[:3]:
+                        source_data.append({
+                            'pdf_id': source['pdf_id'],
+                            'pdf_filename': source['pdf_filename'],
+                            'page_number': source['page_number'],
+                            'similarity_score': source['similarity_score'],
+                            'preview': source['chunk_content_preview']
+                        })
+                    
+                    yield {
+                        'type': 'sources',
+                        'data': source_data,
+                        'final': False
+                    }
+                
+                # Final completion signal
+                yield {
+                    'type': 'complete',
+                    'data': ''.join(response_parts),
+                    'final': True,
+                    'sources': sources[:3]
+                }
+                
+            else:
+                fallback_response = f"AI service unavailable. Context found from {len(context_parts)} sources."
+                yield {
+                    'type': 'content',
+                    'data': fallback_response,
+                    'final': True,
+                    'sources': sources[:3]
+                }
+                
+        except Exception as e:
+            print(f"❌ Streaming error: {e}")
+            yield {
+                'type': 'error',
+                'data': f"Error generating response: {str(e)}",
+                'final': True,
+                'sources': []
+            }
 
-
-
-
-    # def generate_response_with_sources(self, chat_id: int, user_query: str) -> Dict:
-    #     """Generate response with source attribution"""
-    #     try:
-    #         print(f"🔄 Processing query: {user_query[:50]}...")
-            
-    #         # Ensure vector store is ready
-    #         self._ensure_vector_store_ready(chat_id)
-            
-    #         # 1. Retrieve relevant chunks with metadata
-    #         relevant_chunks = self.vector_store.search_similar_chunks(chat_id, user_query, k=5)
-    #         print(relevant_chunks)
-    #         if not relevant_chunks:
-    #             return {
-    #                 'response': "I couldn't find any relevant information in the uploaded documents for your question.",
-    #                 'sources': [],
-    #                 'context_used': 0
-    #             }
-            
-    #         # 2. Extract context and source info
-    #         context_parts = []
-    #         sources = []
-            
-    #         for chunk in relevant_chunks:
-    #             context_parts.append(chunk['content'])
-    #             metadata = chunk.get('metadata', {})
-    #             if metadata.get('page'):
-    #                 sources.append({
-    #                     'page': metadata['page'],
-    #                     'pdf_id': chunk['pdf_id'],
-    #                     'similarity_score': chunk.get('similarity_score', 0)
-    #                 })
-            
-    #         # 3. Generate AI response
-    #         context = "\n\n".join(context_parts)
-    #         chat_description = ChatSession.query.filter_by(id=chat_id).first().description if chat_id else "default theme"
-            
-    #         if self.llm:
-    #             ai_response = self.llm.generate(context, user_query, description=chat_description)
-    #         else:
-    #             ai_response = "AI service is currently unavailable. Here's the relevant context I found:\n\n" + context[:500] + "..."
-            
-    #         # 4. Format response with sources
-    #         if sources:
-    #             source_text = "\n\n**Sources:**\n" + "\n".join([
-    #                 f"📄 Page {source['page']}" for source in sources[:3]
-    #             ])
-    #             formatted_response = ai_response + source_text
-    #         else:
-    #             formatted_response = ai_response
-            
-    #         return {
-    #             'response': formatted_response,
-    #             'sources': sources,
-    #             'context_used': len(context_parts)
-    #         }
-            
-    #     except Exception as e:
-    #         print(f"❌ RAG error: {e}")
-    #         import traceback
-    #         traceback.print_exc()
-            
-    #         return {
-    #             'response': f"I encountered an error while processing your question: {str(e)}",
-    #             'sources': [],
-    #             'context_used': 0
-    #         }
-    
     def generate_response(self, chat_id: int, user_query: str) -> str:
         """Generate simple response (compatibility method)"""
         result = self.generate_response_with_sources(chat_id, user_query)
