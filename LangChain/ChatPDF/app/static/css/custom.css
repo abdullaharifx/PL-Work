@@ -369,6 +369,7 @@ a:hover {
 .speak-button {
     border-color: var(--medium-teal);
     color: var(--medium-teal);
+    transition: all 0.3s ease;
 }
 
 .speak-button:hover {
@@ -377,11 +378,34 @@ a:hover {
     color: white;
 }
 
-.speak-button.speaking {
-    background-color: var(--golden-brown);
-    border-color: var(--golden-brown);
-    color: white;
-    animation: pulse 2s infinite;
+.speak-button.speaking-active {
+    background-color: rgba(13, 110, 253, 0.1);
+    border-color: #0d6efd;
+    color: #0d6efd;
+    animation: speaking-pulse 2s infinite;
+}
+
+.speak-button.paused-active {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-color: #ffc107;
+    color: #ffc107;
+    animation: none;
+}
+
+/* Speaking animation */
+@keyframes speaking-pulse {
+    0% { 
+        box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4);
+        transform: scale(1);
+    }
+    50% { 
+        box-shadow: 0 0 0 8px rgba(13, 110, 253, 0.1);
+        transform: scale(1.02);
+    }
+    100% { 
+        box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
+        transform: scale(1);
+    }
 }
 
 .stop-speech-btn {
@@ -401,20 +425,56 @@ a:hover {
     color: white;
 }
 
-/* Voice feedback indicators */
-.voice-indicator {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background-color: #dc3545;
-    border-radius: 50%;
-    margin-right: 6px;
-    animation: blink 1s infinite;
+/* Voice notification improvements */
+.voice-notification {
+    border-left: 4px solid currentColor;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    animation: slideInRight 0.3s ease-out;
 }
 
-@keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0.3; }
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.voice-notification .alert-info {
+    border-left-color: #0dcaf0;
+    background: linear-gradient(135deg, rgba(13, 202, 240, 0.1), rgba(13, 202, 240, 0.05));
+}
+
+.voice-notification .alert-success {
+    border-left-color: #198754;
+    background: linear-gradient(135deg, rgba(25, 135, 84, 0.1), rgba(25, 135, 84, 0.05));
+}
+
+.voice-notification .alert-danger {
+    border-left-color: #dc3545;
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05));
+}
+
+.voice-notification .alert-warning {
+    border-left-color: #ffc107;
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05));
+}
+
+/* Enhanced button feedback */
+.speak-button:active {
+    transform: scale(0.98);
+}
+
+.speak-button.speaking-active:hover {
+    background-color: rgba(13, 110, 253, 0.2);
+}
+
+.speak-button.paused-active:hover {
+    background-color: rgba(255, 193, 7, 0.2);
 }
 
 /* Accessibility improvements for voice features */

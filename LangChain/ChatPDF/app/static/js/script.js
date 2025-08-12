@@ -10,6 +10,15 @@ class VoiceModule {
         this.currentUtterance = null;
         this.isSpeaking = false;
         
+        // ✅ Add pause/resume support
+        this.isPaused = false;
+        this.currentText = '';
+        this.currentPosition = 0;
+        this.textChunks = [];
+        this.currentChunkIndex = 0;
+        this.activeButton = null;
+        this.pausedAt = 0;
+        
         this.initializeSpeechRecognition();
         this.initializeTextToSpeech();
         
@@ -147,17 +156,25 @@ class VoiceModule {
         }
     }
 
-    // ✅ Speak Text (TTS)
-    speakText(text, voiceIndex = null) {
-        // Cancel any ongoing speech
-        this.stopSpeaking();
+    // ✅ Enhanced Speak Text with Pause/Resume Support
+    speakText(text, voiceIndex = null, button = null) {
+        // If currently speaking the same text, toggle pause/resume
+        if (this.isSpeaking && this.currentText === text && this.activeButton === button) {
+            this.togglePauseResume();
+            return;
+        }
+        
+        // If speaking different text, stop and start new
+        if (this.isSpeaking) {
+            this.stopSpeaking();
+        }
 
         if (!text || text.trim() === '') {
             console.warn('⚠️ No text to speak');
             return;
         }
 
-        // Clean text for speaking (remove HTML tags and markdown)
+        // Clean text for speaking
         const cleanText = this.cleanTextForSpeaking(text);
 
         if (cleanText.length === 0) {
@@ -165,59 +182,170 @@ class VoiceModule {
             return;
         }
 
-        // Create speech utterance
-        this.currentUtterance = new SpeechSynthesisUtterance(cleanText);
+        // Store current text and button reference
+        this.currentText = text;
+        this.activeButton = button;
+        this.currentPosition = 0;
+        this.isPaused = false;
+        
+        // Split text into manageable chunks for better pause/resume control
+        this.textChunks = this.splitTextIntoChunks(cleanText);
+        this.currentChunkIndex = 0;
+
+        // Start speaking from the beginning
+        this.speakCurrentChunk();
+    }
+
+    // ✅ Split text into chunks for better pause/resume control
+    splitTextIntoChunks(text) {
+        // Split by sentences first
+        const sentences = text.match(/[^\.!?]+[\.!?]+/g) || [text];
+        const chunks = [];
+        let currentChunk = '';
+        
+        sentences.forEach(sentence => {
+            // If adding this sentence would make chunk too long, start a new chunk
+            if (currentChunk.length + sentence.length > 200 && currentChunk.length > 0) {
+                chunks.push(currentChunk.trim());
+                currentChunk = sentence;
+            } else {
+                currentChunk += sentence;
+            }
+        });
+        
+        // Add the last chunk
+        if (currentChunk.trim()) {
+            chunks.push(currentChunk.trim());
+        }
+        
+        return chunks.length > 0 ? chunks : [text];
+    }
+
+    // ✅ Speak current chunk
+    speakCurrentChunk() {
+        if (this.currentChunkIndex >= this.textChunks.length) {
+            // Finished speaking all chunks
+            this.onSpeechComplete();
+            return;
+        }
+
+        const chunkText = this.textChunks[this.currentChunkIndex];
+        
+        // Create speech utterance for current chunk
+        this.currentUtterance = new SpeechSynthesisUtterance(chunkText);
         
         // Set voice
-        if (voiceIndex !== null && this.voices[voiceIndex]) {
-            this.currentUtterance.voice = this.voices[voiceIndex];
-        } else if (this.defaultVoice) {
+        if (this.defaultVoice) {
             this.currentUtterance.voice = this.defaultVoice;
         }
 
-        // Configure speech parameters for better quality
-        this.currentUtterance.rate = 0.85;     // Slightly slower for clarity
-        this.currentUtterance.pitch = 1.0;     // Normal pitch
-        this.currentUtterance.volume = 0.9;    // Near full volume
+        // Configure speech parameters
+        this.currentUtterance.rate = 0.85;
+        this.currentUtterance.pitch = 1.0;
+        this.currentUtterance.volume = 0.9;
 
         // Event handlers
         this.currentUtterance.onstart = () => {
-            console.log('🔊 Started speaking');
-            this.isSpeaking = true;
-            this.updateSpeakingUI(true);
-            this.showNotification('🔊 Speaking...', 'info');
+            if (this.currentChunkIndex === 0) {
+                console.log('🔊 Started speaking');
+                this.isSpeaking = true;
+                this.updateSpeakingUI(true);
+                this.showNotification('🔊 Speaking... Click to pause', 'info');
+            }
         };
 
         this.currentUtterance.onend = () => {
-            console.log('🔊 Finished speaking');
-            this.isSpeaking = false;
-            this.currentUtterance = null;
-            this.updateSpeakingUI(false);
+            // Move to next chunk
+            this.currentChunkIndex++;
+            this.currentPosition += chunkText.length;
+            
+            // If not paused, continue to next chunk
+            if (!this.isPaused && this.currentChunkIndex < this.textChunks.length) {
+                setTimeout(() => this.speakCurrentChunk(), 100); // Small delay between chunks
+            } else if (this.currentChunkIndex >= this.textChunks.length) {
+                this.onSpeechComplete();
+            }
         };
 
         this.currentUtterance.onerror = (event) => {
             console.error('❌ Speech synthesis error:', event.error);
-            this.isSpeaking = false;
-            this.currentUtterance = null;
-            this.updateSpeakingUI(false);
-            this.showNotification('Speech error: ' + event.error, 'error');
+            this.onSpeechError(event.error);
         };
 
-        // Start speaking
+        // Start speaking current chunk
         this.speechSynthesis.speak(this.currentUtterance);
         
-        console.log('🔊 Speaking:', cleanText.substring(0, 100) + '...');
+        console.log(`🔊 Speaking chunk ${this.currentChunkIndex + 1}/${this.textChunks.length}:`, chunkText.substring(0, 50) + '...');
     }
 
-    // ✅ Stop Speaking
+    // ✅ Toggle pause/resume
+    togglePauseResume() {
+        if (!this.isSpeaking) {
+            return;
+        }
+
+        if (this.isPaused) {
+            // Resume speaking
+            this.resumeSpeaking();
+        } else {
+            // Pause speaking
+            this.pauseSpeaking();
+        }
+    }
+
+    // ✅ Pause speaking
+    pauseSpeaking() {
+        if (this.isSpeaking && !this.isPaused) {
+            this.speechSynthesis.pause();
+            this.isPaused = true;
+            
+            console.log('⏸️ Speech paused');
+            this.showNotification('⏸️ Paused. Click to resume', 'warning');
+            this.updateSpeakingUI(true, true); // true for speaking, true for paused
+        }
+    }
+
+    // ✅ Resume speaking
+    resumeSpeaking() {
+        if (this.isSpeaking && this.isPaused) {
+            this.speechSynthesis.resume();
+            this.isPaused = false;
+            
+            console.log('▶️ Speech resumed');
+            this.showNotification('▶️ Resumed speaking', 'info');
+            this.updateSpeakingUI(true, false); // true for speaking, false for paused
+        }
+    }
+
+    // ✅ Stop Speaking (completely)
     stopSpeaking() {
         if (this.speechSynthesis.speaking || this.speechSynthesis.pending) {
             this.speechSynthesis.cancel();
         }
-        this.isSpeaking = false;
-        this.currentUtterance = null;
-        this.updateSpeakingUI(false);
+        
+        this.onSpeechComplete();
         console.log('🔇 Speech stopped');
+    }
+
+    // ✅ Handle speech completion
+    onSpeechComplete() {
+        this.isSpeaking = false;
+        this.isPaused = false;
+        this.currentUtterance = null;
+        this.currentText = '';
+        this.currentPosition = 0;
+        this.textChunks = [];
+        this.currentChunkIndex = 0;
+        this.activeButton = null;
+        
+        this.updateSpeakingUI(false);
+    }
+
+    // ✅ Handle speech error
+    onSpeechError(error) {
+        console.error('❌ Speech error:', error);
+        this.showNotification('Speech error: ' + error, 'error');
+        this.onSpeechComplete();
     }
 
     // ✅ Clean text for speaking
@@ -272,19 +400,35 @@ class VoiceModule {
         }
     }
 
-    // ✅ Update speaking UI
-    updateSpeakingUI(isSpeaking) {
+    // ✅ Enhanced Update speaking UI with pause state
+    updateSpeakingUI(isSpeaking, isPaused = false) {
         const speakButtons = document.querySelectorAll('.speak-button');
         speakButtons.forEach(button => {
             const icon = button.querySelector('i');
-            if (isSpeaking) {
-                icon.className = 'fas fa-stop text-danger';
-                button.title = 'Stop Speaking';
-                button.classList.add('speaking-active');
+            
+            if (button === this.activeButton) {
+                if (isSpeaking) {
+                    if (isPaused) {
+                        icon.className = 'fas fa-play text-warning';
+                        button.title = 'Resume Speaking';
+                        button.classList.add('paused-active');
+                        button.classList.remove('speaking-active');
+                    } else {
+                        icon.className = 'fas fa-pause text-primary';
+                        button.title = 'Pause Speaking';
+                        button.classList.add('speaking-active');
+                        button.classList.remove('paused-active');
+                    }
+                } else {
+                    icon.className = 'fas fa-volume-up';
+                    button.title = 'Listen to Message';
+                    button.classList.remove('speaking-active', 'paused-active');
+                }
             } else {
+                // Other buttons return to normal state
                 icon.className = 'fas fa-volume-up';
                 button.title = 'Listen to Message';
-                button.classList.remove('speaking-active');
+                button.classList.remove('speaking-active', 'paused-active');
             }
         });
     }
@@ -465,47 +609,12 @@ window.speakMessage = function(element) {
         return;
     }
 
-    // If currently speaking, stop instead
-    if (voiceModule.isSpeaking) {
-        voiceModule.stopSpeaking();
-        return;
-    }
-
     // Get text from data-text attribute
     const text = element.getAttribute('data-text');
     
     if (text && text.trim()) {
-        console.log('🔊 Speaking text:', text.substring(0, 100) + '...');
-        voiceModule.speakText(text);
-        
-        // Update button appearance
-        const icon = element.querySelector('i');
-        const stopBtn = element.parentElement.querySelector('.stop-speech-btn');
-        
-        if (icon) {
-            icon.className = 'fas fa-stop';
-            element.classList.add('speaking');
-        }
-        
-        if (stopBtn) {
-            stopBtn.style.display = 'inline-block';
-            element.style.display = 'none';
-        }
-        
-        // Listen for speech end to restore buttons
-        if (voiceModule.currentUtterance) {
-            voiceModule.currentUtterance.onend = function() {
-                if (icon) {
-                    icon.className = 'fas fa-volume-up';
-                    element.classList.remove('speaking');
-                }
-                
-                if (stopBtn) {
-                    stopBtn.style.display = 'none';
-                    element.style.display = 'inline-block';
-                }
-            };
-        }
+        console.log('🔊 Speaking/controlling text:', text.substring(0, 50) + '...');
+        voiceModule.speakText(text, null, element);
     } else {
         console.warn('⚠️ No text content found to speak');
         voiceModule.showNotification('No text to speak', 'warning');
