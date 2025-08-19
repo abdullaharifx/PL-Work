@@ -477,6 +477,119 @@ a:hover {
     background-color: rgba(255, 193, 7, 0.2);
 }
 
+/* ✅ Full-width chat layout optimizations */
+.chat-container {
+    height: calc(100vh - 76px);
+    max-height: calc(100vh - 76px);
+}
+
+.pdf-viewer-section {
+    min-width: 300px;
+    max-width: 60%;
+}
+
+.chat-panel-section {
+    min-width: 400px;
+    flex: 1;
+}
+
+/* ✅ Responsive design for smaller screens */
+@media (max-width: 1200px) {
+    .pdf-viewer-section {
+        width: 45% !important;
+    }
+    
+    .chat-panel-section {
+        width: 55% !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .d-flex.h-100 {
+        flex-direction: column !important;
+    }
+    
+    .pdf-viewer-section,
+    .chat-panel-section {
+        width: 100% !important;
+        max-width: none !important;
+    }
+    
+    .pdf-viewer-section {
+        height: 40vh !important;
+    }
+    
+    .chat-panel-section {
+        height: 60vh !important;
+    }
+    
+    /* Reduce message width on mobile */
+    .p-2.rounded {
+        max-width: 95% !important;
+    }
+}
+
+/* ✅ Chat message optimizations */
+.message-bubble {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+/* ✅ PDF viewer optimizations */
+.pdf-iframe {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ Chat input optimizations */
+.chat-input-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+/* ✅ Scrollbar styling for chat */
+#chat-window::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chat-window::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+#chat-window::-webkit-scrollbar-thumb {
+    background: var(--medium-teal);
+    border-radius: 3px;
+}
+
+#chat-window::-webkit-scrollbar-thumb:hover {
+    background: var(--dark-teal);
+}
+
+/* ✅ Enhanced focus states */
+.form-control:focus {
+    border-color: var(--medium-teal);
+    box-shadow: 0 0 0 0.2rem rgba(30, 111, 92, 0.25);
+}
+
+.btn-success:focus {
+    box-shadow: 0 0 0 0.2rem rgba(30, 111, 92, 0.5);
+}
+
+/* ✅ Improved spacing for compact layout */
+.compact-header {
+    padding: 0.5rem 0.75rem !important;
+}
+
+.compact-chat {
+    padding: 0.5rem !important;
+}
+
+.compact-input {
+    padding: 0.75rem !important;
+}
+
 /* Accessibility improvements for voice features */
 .sr-only {
     position: absolute !important;

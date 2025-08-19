@@ -37,7 +37,7 @@ def register_routes(app):
     app.register_blueprint(dashboard.bp)
     app.register_blueprint(create.bp)
     app.register_blueprint(delete.bp)
-    app.register_blueprint(edit.bp)
+    app.register_blueprint(edit.bp, url_prefix='/edit')
     app.register_blueprint(chat_controller.bp)
     app.register_blueprint(file_upload.bp)
     return app

@@ -5,7 +5,7 @@ from app.utils.utils import login_required
 
 bp = Blueprint('edit', __name__)
 
-@bp.route('/<int:chat_id>', methods=['GET', 'POST'])
+@bp.route('/chat/<int:chat_id>', methods=['GET', 'POST'])
 @login_required
 def edit_view(chat_id):
     chat = ChatSession.query.get_or_404(chat_id)

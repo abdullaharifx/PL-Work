@@ -6,25 +6,31 @@
 <!-- Include Voice Module -->
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
-<div class="container-fluid px-0" style="height: 90vh;">
+<!-- Override the base template container to use full width -->
+</div> <!-- Close the base template container -->
+
+<div class="container-fluid px-0" style="height: calc(100vh - 76px); margin-top: -1.5rem;">
     <div class="d-flex h-100" style="width: 100%;">
 
         <!-- PDF Viewer Section -->
         <div id="pdf-viewer-container" class="border-end bg-white" style="width: 50%; overflow-y: auto;">
-            <div class="p-3">
-                <h6><i class="fas fa-eye"></i> PDF Viewer</h6>
+            <div class="p-2">
+                <h6 class="mb-2"><i class="fas fa-eye"></i> PDF Viewer</h6>
                 {% if chat.pdfs %}
-                    <div class="d-flex gap-2 flex-wrap">
+                    <div class="d-flex gap-1 flex-wrap">
                         {% for pdf in chat.pdfs %}
                             <iframe src="{{ url_for('file_upload.view_pdf', pdf_id=pdf.id) }}"
-                                    class="border"
-                                    style="width: 100%; height: 90vh;"
+                                    class="border rounded"
+                                    style="width: 100%; height: calc(100vh - 140px);"
                                     title="PDF Preview {{ loop.index }}">
                             </iframe>
                         {% endfor %}
                     </div>
                 {% else %}
-                    <p class="text-muted">Upload PDFs to preview them here.</p>
+                    <div class="text-center text-muted mt-5">
+                        <i class="fas fa-file-pdf fa-3x mb-3 opacity-50"></i>
+                        <p>Upload PDFs to preview them here.</p>
+                    </div>
                 {% endif %}
             </div>
         </div>
@@ -32,11 +38,11 @@
         <!-- Chat Panel -->
         <div class="d-flex flex-column" style="width: 50%;">
             <!-- Chat Header -->
-            <div class="border-bottom p-3 bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-robot"></i> {{ chat.title }} </h5>
-                <div class="d-flex gap-2">
+            <div class="border-bottom p-2 bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="fas fa-robot"></i> {{ chat.title }}</h6>
+                <div class="d-flex gap-1">
                     <a href="{{ url_for('edit.edit_view', chat_id=chat.id) }}" class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-edit"></i> Edit Chat
+                        <i class="fas fa-edit"></i> Edit
                     </a>
                     <!-- Upload PDF Button -->
                     <form id="pdfUploadForm" method="POST" enctype="multipart/form-data" action="{{ url_for('file_upload.upload_file') }}">
@@ -51,23 +57,31 @@
             </div>
 
             <!-- Chat History -->
-        <div class="flex-grow-1 overflow-auto p-4" id="chat-window">
+        <div class="flex-grow-1 overflow-auto px-2 py-2" id="chat-window" style="max-height: calc(100vh - 180px);">
             {% if messages %}
                 {% for message in messages %}
                 <div class="mb-2">
                     {% if message.role == 'user' %}
                     <div class="d-flex justify-content-end">
-                        <div class="p-2 rounded" style="background-color: var(--medium-teal); color: white; max-width: 70%;">
+                        <div class="p-2 rounded" style="background-color: var(--medium-teal); color: white; max-width: 85%;">
                             <div>{{ message.content |  markdownify }}</div>
-                            <div class="small text-end opacity-75">{{ message.timestamp.strftime('%H:%M') }}</div>
+                            <div class="small text-end opacity-75">
+                                    <span class="local-time" data-utc="{{ message.timestamp.isoformat() }}">
+                                        {{ message.timestamp.strftime('%H:%M') }}
+                                    </span>
+                                </div>
                         </div>
                     </div>
                     {% else %}
                     <div class="d-flex justify-content-start">
-                        <div class="p-2 rounded border" style="background-color: var(--off-white); color: var(--dark-teal); max-width: 70%;">
+                        <div class="p-2 rounded border" style="background-color: var(--off-white); color: var(--dark-teal); max-width: 85%;">
                             <div>{{ message.content | markdownify | safe }}</div>
                             <div class="d-flex justify-content-between align-items-center mt-2">
-                                <div class="small text-start text-muted">{{ message.timestamp.strftime('%H:%M') }}</div>
+                                <div class="small text-start text-muted">
+                                    <span class="local-time" data-utc="{{ message.timestamp.isoformat() }}">
+                                        {{ message.timestamp.strftime('%H:%M') }}
+                                    </span>
+                                </div>
                                 <div class="voice-controls">
                                     <button class="btn btn-sm btn-outline-secondary me-1 speak-button" 
                                             data-text="{{ message.content | striptags | e }}" 
@@ -92,7 +106,7 @@
 
 
             <!-- Chat Input -->
-            <div class="border-top p-3 bg-white">
+            <div class="border-top p-2 bg-white">
                 <form method="POST" 
                       hx-post="{{ url_for('chat_controller.send_message', username=user.username, chat_id=chat.id) }}" 
                       hx-target="#chat-window" 
@@ -122,6 +136,10 @@
         </div>
     </div>
 </div>
+
+<!-- Re-open container for footer or other content -->
+<div class="container">
+<!-- This ensures any content after the chat uses normal container spacing -->
 
 <script>
 // Submit the PDF file form when a file is selected
@@ -279,6 +297,46 @@ function showNotification(message, type) {
 
 // Initialize Voice Module
 document.addEventListener('DOMContentLoaded', function() {
+    // ✅ Convert UTC timestamps to local time
+    function convertTimestamps() {
+        const timeElements = document.querySelectorAll('.local-time');
+        
+        timeElements.forEach(element => {
+            const utcTime = element.getAttribute('data-utc');
+            if (utcTime) {
+                const localDate = new Date(utcTime + 'Z'); // Add Z to indicate UTC
+                const localTimeString = localDate.toLocaleTimeString([], {
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false  // Use 24-hour format
+                });
+                element.textContent = localTimeString;
+            }
+        });
+    }
+    
+    // Convert timestamps on page load
+    convertTimestamps();
+    
+    // ✅ Also handle dynamically added messages (for new messages via HTMX)
+    document.body.addEventListener('htmx:afterSwap', function(event) {
+        const newTimeElements = event.detail.target.querySelectorAll('.local-time');
+        
+        newTimeElements.forEach(element => {
+            const utcTime = element.getAttribute('data-utc');
+            if (utcTime) {
+                const localDate = new Date(utcTime + 'Z');
+                const localTimeString = localDate.toLocaleTimeString([], {
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false
+                });
+                element.textContent = localTimeString;
+            }
+        });
+    });
+    
+    // ✅ Initialize Voice Module
     if (typeof VoiceModule !== 'undefined') {
         const voiceModule = new VoiceModule();
         
