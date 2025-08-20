@@ -116,8 +116,9 @@
                         <button class="btn btn-outline-secondary" type="button" id="mic-button" title="Voice Input (Ctrl+M)" onclick="startVoiceInput()">
                             <i class="fas fa-microphone"></i>
                         </button>
-                        <button class="btn btn-success" type="submit">
-                            <i class="fas fa-paper-plane"></i>
+                        <button class="btn btn-success" type="submit" id="sendBtn">
+                            <span id="sendBtnIcon"><i class="fas fa-paper-plane"></i></span>
+                            <span id="sendBtnSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                         </button>
                     </div>
                 </form>
@@ -131,6 +132,29 @@
                 <!-- Keyboard shortcuts hint -->
                 <div class="keyboard-hint text-center mt-1">
                     <small>Press <kbd>Ctrl+M</kbd> for voice input • <kbd>Esc</kbd> to stop speaking</small>
+                </div>
+                <script>
+                // Disable send button and show spinner on submit
+                document.addEventListener('DOMContentLoaded', function() {
+                    var form = document.querySelector('form[method="POST"][hx-post]');
+                    var sendBtn = document.getElementById('sendBtn');
+                    var sendBtnIcon = document.getElementById('sendBtnIcon');
+                    var sendBtnSpinner = document.getElementById('sendBtnSpinner');
+                    if (form && sendBtn && sendBtnIcon && sendBtnSpinner) {
+                        form.addEventListener('submit', function(e) {
+                            sendBtn.disabled = true;
+                            sendBtnIcon.classList.add('d-none');
+                            sendBtnSpinner.classList.remove('d-none');
+                        });
+                        // HTMX event to re-enable button after response
+                        document.body.addEventListener('htmx:afterRequest', function(evt) {
+                            sendBtn.disabled = false;
+                            sendBtnIcon.classList.remove('d-none');
+                            sendBtnSpinner.classList.add('d-none');
+                        });
+                    }
+                });
+                </script
                 </div>
             </div>
         </div>

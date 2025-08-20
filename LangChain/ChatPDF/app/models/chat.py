@@ -9,6 +9,7 @@ class ChatSession(db.Model):
     description = db.Column(db.String(150), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    llm_model = db.Column(db.String(32), nullable=False, default='qwen/qwen3-32b')
     
     
     

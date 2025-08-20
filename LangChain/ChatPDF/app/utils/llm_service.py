@@ -62,9 +62,19 @@ class LLMService:
         else:
             raise ValueError(f"LLM provider '{self.provider}' not available or not supported")
     
-    def generate(self, context: str, query: str, description: str, chat_history: List[dict[str,str]] = None) -> str:
-        """Generate response using the configured LLM"""
+    def generate(self, context: str, query: str, description: str, chat_history: List[dict[str,str]] = None, model_name: str = None) -> str:
+        """Generate response using the configured LLM, optionally specifying model_name."""
         try:
+            # Determine provider/model from model_name
+            provider = self.provider
+            model = None
+            if model_name:
+                if model_name.startswith('qwen'):  # e.g. 'qwen3-32b'
+                    provider = 'groq'
+                    model = model_name
+                elif model_name.startswith('gemini'):  # e.g. 'gemini-2.5-flash'
+                    provider = 'gemini'
+                    model = model_name
             conversation_context = ""
             if chat_history:
                 conversation_context = "\n\nPrevious Conversation:\n"
@@ -96,16 +106,16 @@ class LLMService:
                         Answer:
                         """
 
-            if self.provider == "groq":
+            if provider == "groq":
                 response = self.client.chat.completions.create(
-                    model="qwen/qwen3-32b",  # Use a valid Groq model
+                    model=model or "qwen/qwen3-32b",  # Use selected or default Groq model
                     messages=[{"role": "user", "content": prompt}],
                     temperature=1.2,
                     max_tokens=1024
                 )
                 return response.choices[0].message.content
             
-            elif self.provider == "gemini":
+            elif provider == "gemini":
                 response = self.client.generate_content(prompt)
                 return response.text
                 

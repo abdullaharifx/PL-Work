@@ -46,6 +46,15 @@
                             <div class="form-text text-muted">Max 150 characters</div>
                         </div>
                         
+                        <div class="mb-3">
+                            <label for="llm_model" class="form-label">Model</label>
+                            <select class="form-select" id="llm_model" name="llm_model" required>
+                                <option value="qwen3-32b" {% if request.form.get('llm_model', 'qwen3-32b') == 'qwen3-32b' %}selected{% endif %}>Qwen3-32B</option>
+                                <option value="gemini-2.5-flash" {% if request.form.get('llm_model') == 'gemini-2.5-flash' %}selected{% endif %}>Gemini 2.5 Flash</option>
+                            </select>
+                            <div class="form-text">Select the AI model for this chat session.</div>
+                        </div>
+                        
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <a href="{{ url_for('dashboard.dashboard_view') }}" 
                             class="btn btn-outline-primary me-md-2">

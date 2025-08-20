@@ -17,6 +17,7 @@ def edit_view(chat_id):
     if request.method == 'POST':
         title = request.form['title']
         description = request.form['description']
+        llm_model = request.form.get('llm_model', 'qwen/qwen3-32b')
 
         if not title or not description:
             flash('Both title and description are required!', 'error')
@@ -24,6 +25,7 @@ def edit_view(chat_id):
 
         chat.title = title
         chat.description = description
+        chat.llm_model = llm_model
         db.session.commit()
 
         flash('Chat updated successfully!', 'success')
