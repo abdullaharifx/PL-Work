@@ -57,7 +57,7 @@ ChatPDF is an AI-powered chat interface for querying PDF documents. It uses Lang
 flowchart TD
     A[PDF Ingestion] --> B[Text Chunking]
     B --> C[Embeddings]
-    C --> D[Vector Store (Chroma/Pinecone)]
+    C --> D["Vector Store: Chroma / Pinecone"]
     D --> E[Retriever]
     E --> F[LLM Response]
     F --> G[Chat Interface]
