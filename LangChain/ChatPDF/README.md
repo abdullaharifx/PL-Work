@@ -70,10 +70,10 @@ flowchart TD
 |-------------------|-------------------|
 | Framework         | Flask             |
 | LLM Orchestration | LangChain (v0.x)  |
-| Vector DB         | Chroma, Pinecone  |
-| Embeddings        | OpenAI, HuggingFace|
+| Vector DB         | Chroma            |
+| Embeddings        | all-MiniLM-L6-v2  |
 | LLM Provider      | Groq, Gemini      |
-| Frontend          | Bootstrap, HTMX   |
+| Frontend          | CSS, Js, HTMX     |
 | Database          | SQLite            |
 | Voice             | Web Speech API    |
 
