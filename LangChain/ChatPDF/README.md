@@ -221,5 +221,6 @@ MIT License. See [LICENSE.md](LICENSE.md).
 ## Demo & Screenshots
 ![Dashboard Screenshot](app/static/img/main.png)
 ![Chat Session Screenshot](app/static/img/todo.png)
+![Chat Box Screenshot](app/static/img/tldr.png)
 
 ---
