@@ -27,8 +27,7 @@
 - [License](#license)
 - [Troubleshooting](#troubleshooting)
 - [FAQ](#faq)
-- [Contact & Support](#contact--support)
-- [Demo & Screenshots](#demo--screenshots)
+- [Screenshots](#screenshots)
 
 ---
 
@@ -210,15 +209,10 @@ MIT License. See [LICENSE.md](LICENSE.md).
 **Q:** Is my data private?  
 **A:** Yes, PDFs are stored locally and not shared.
 
----
-
-## Contact & Support
-- Issues: [GitHub Issues](https://github.com/abdullaharifx/PL-Work/issues)
-- Email: support@example.com
 
 ---
 
-## Demo & Screenshots
+## Screenshots
 ![Dashboard Screenshot](app/static/img/main.png)
 ![Chat Session Screenshot](app/static/img/todo.png)
 ![Chat Box Screenshot](app/static/img/tldr.png)
