@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+:root {
+  --reddit-orange: #ff4500;
+  --reddit-blue: #0079d3;
+  --reddit-light-blue: #33a8ff;
+  --reddit-dark: #1a1a1b;
+  --reddit-light: #f8f9fa;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+    "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.btn-reddit {
+  @apply bg-[#FF4500] text-white hover:bg-[#e03d00] transition-colors;
+}
+
+.btn-reddit-blue {
+  @apply bg-[#0079D3] text-white hover:bg-[#006bb9] transition-colors;
+}
+
+.btn-secondary {
+  @apply bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors;
+}
