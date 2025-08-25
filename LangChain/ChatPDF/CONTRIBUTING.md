@@ -49,7 +49,6 @@ Thank you for your interest in contributing to ChatPDF! We welcome all contribut
 
 ## Testing
 - Add unit tests for new features and bug fixes
-- Use `pytest` for running tests
 - Ensure all tests pass before submitting a pull request
 
 ---
@@ -61,7 +60,6 @@ Thank you for your interest in contributing to ChatPDF! We welcome all contribut
 ---
 
 ## Issue Reporting & Feature Requests
-- Use [GitHub Issues](https://github.com/abdullaharifx/PL-Work/issues) to report bugs or request features
 - Provide clear steps to reproduce bugs
 - Suggest enhancements with use cases and rationale
 
