@@ -28,6 +28,7 @@
 - [Troubleshooting](#troubleshooting)
 - [FAQ](#faq)
 - [Screenshots](#screenshots)
+- [Demo](#demo)
 
 ---
 
@@ -216,5 +217,8 @@ MIT License. See [LICENSE.md](LICENSE.md).
 ![Dashboard Screenshot](app/static/img/main.png)
 ![Chat Session Screenshot](app/static/img/todo.png)
 ![Chat Box Screenshot](app/static/img/tldr.png)
+
+## Demo
+![Demo](app/static/img/trim.mp4)
 
 ---
