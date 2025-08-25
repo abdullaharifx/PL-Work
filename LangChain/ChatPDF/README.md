@@ -219,6 +219,11 @@ MIT License. See [LICENSE.md](LICENSE.md).
 ![Chat Box Screenshot](app/static/img/tldr.png)
 
 ## Demo
-![Demo](app/static/img/trim.mp4)
+<video controls>
+  <source src="app/static/img/trim.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+<!--video link trim.mp4 to be played in-readme->
+
 
 ---
